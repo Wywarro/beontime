@@ -97,12 +97,12 @@ namespace BIMonTime.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<WorkdayDetailModel>> UpdateWorkday(int id, WorkdayDetailModel model)
+        public async Task<ActionResult<WorkdayDetailModel>> UpdateWorkday(int id, WorkdayUpdateModel model)
         {
             try
             {
                 if (id != model.Id)
-                    return BadRequest("Id in payload and Id in request doesn't match!");
+                    return BadRequest("Id of workday in payload and Id in request doesn't match!");
 
                 var oldWorkday = await repository.GetWorkday(id);
                 if (oldWorkday == null)
@@ -125,12 +125,16 @@ namespace BIMonTime.Web.Controllers
         {
             try
             {
+                var oldWorkday = await repository.GetWorkday(id);
+                if (oldWorkday == null)
+                    NotFound($"Could not find workday with provided id={id}");
+
                 await repository.DeleteWorkday(id);
                 return Ok($"Workday with id={id} has been deleted!");
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception e)
             {

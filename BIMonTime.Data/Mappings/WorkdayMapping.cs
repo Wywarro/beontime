@@ -26,6 +26,11 @@ namespace BIMonTime.Data.Mappings
                 .ForMember(work => work.Status,
                 map => map.MapFrom(workModel =>
                     (WorkdayStatus)Enum.Parse(typeof(WorkdayStatus), workModel.Status.Replace(" ", ""))));
+            
+            CreateMap<WorkdayUpdateModel, Workday>()
+                .ForMember(work => work.Status,
+                map => map.MapFrom(workModel =>
+                    (WorkdayStatus)Enum.Parse(typeof(WorkdayStatus), workModel.Status.Replace(" ", ""))));
         }
     }
 

@@ -29,6 +29,14 @@ namespace BIMonTime.Data.Models
         public List<AttendanceDetailModel> Attendances { get; set; }
     }
 
+    public class WorkdayUpdateModel
+    {
+        public int Id { get; set; }
+        public string Status { get; set; }
+        public DateTime Datestamp { get; set; }
+        public bool Verified { get; set; }
+    }
+
     public class WorkdayCreateModel
     {
         [Required]

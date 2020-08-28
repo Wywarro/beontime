@@ -19,7 +19,7 @@ namespace BIMonTime.Data.Entities
 
     public enum WorkdayStatus
     {
-        DayStarted = 0,
+        Present = 0,
         NormalDay = 2,
         Overtime = 3,
         Underime = 4,
