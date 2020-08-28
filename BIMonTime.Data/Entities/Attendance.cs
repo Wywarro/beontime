@@ -9,7 +9,15 @@ namespace BIMonTime.Data.Entities
         public DateTime UpdatedOn { get; set; }
         public int WorkdayId { get; set; }
         public Workday Workday { get; set; }
-        public int Status { get; set; }
+        public EntryMode Status { get; set; }
         public DateTime Timestamp { get; set; }
+    }
+
+    public enum EntryMode
+    {
+        In = 0,
+        Out = 1,
+        BreakEnd = 2,
+        BreakStart = 3
     }
 }

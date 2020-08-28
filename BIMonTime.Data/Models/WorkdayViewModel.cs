@@ -5,16 +5,26 @@ using System.Text;
 
 namespace BIMonTime.Data.Models
 {
-    public class WorkdayDetailModel
+    public class WorkdayListModel
     {
-        [Required]
+        public int Id { get; set; }
         public string Status { get; set; }
-        [Required]
         public DateTime Datestamp { get; set; }
-        [Required]
         public TimeSpan WorkDuration { get; set; }
         public TimeSpan BreakDuration { get; set; }
-        [Required]
+        public bool Verified { get; set; }
+        public int AttendancesCount { get; set; }
+    }
+
+    public class WorkdayDetailModel
+    {
+        public int Id { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public DateTime UpdatedOn { get; set; }
+        public string Status { get; set; }
+        public DateTime Datestamp { get; set; }
+        public TimeSpan WorkDuration { get; set; }
+        public TimeSpan BreakDuration { get; set; }
         public bool Verified { get; set; }
         public List<AttendanceDetailModel> Attendances { get; set; }
     }
@@ -24,9 +34,6 @@ namespace BIMonTime.Data.Models
         [Required]
         public DateTime Datestamp { get; set; }
         [Required]
-        public TimeSpan WorkDuration { get; set; }
-        public TimeSpan BreakDuration { get; set; }
-        [Required]
-        public bool Verified { get; set; }
+        public string Status { get; set; }
     }
 }

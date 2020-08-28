@@ -30,7 +30,10 @@ namespace BIMonTime.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers().AddNewtonsoftJson(options => 
+            {
+                options.SerializerSettings.DateFormatString = "dd'-'MM'-'yyyy' 'HH':'mm";
+            });
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {

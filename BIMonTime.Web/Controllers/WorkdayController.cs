@@ -30,14 +30,14 @@ namespace BIMonTime.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<WorkdayDetailModel>>> GetAllWorkdays()
+        public async Task<ActionResult<IEnumerable<WorkdayListModel>>> GetAllWorkdays()
         {
             string userId = User.FindFirst("id")?.Value;
             try
             {
                 var results = await repository.GetAllWorkdays(userId);
 
-                WorkdayDetailModel[] models = mapper.Map<WorkdayDetailModel[]>(results);
+                WorkdayListModel[] models = mapper.Map<WorkdayListModel[]>(results);
 
                 return models;
             }
@@ -68,7 +68,7 @@ namespace BIMonTime.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<WorkdayDetailModel>> Create(WorkdayDetailModel workdayModel)
+        public async Task<ActionResult<WorkdayDetailModel>> Create(WorkdayCreateModel workdayModel)
         {
             string userId = User.FindFirst("id")?.Value;
             try
@@ -79,7 +79,7 @@ namespace BIMonTime.Web.Controllers
                     return BadRequest("Workday already exists at provided date!");
                 }
 
-                var workday = mapper.Map<WorkdayDetailModel, Workday>(workdayModel);
+                var workday = mapper.Map<WorkdayCreateModel, Workday>(workdayModel);
                 var now = dateTimeProvider.GetDateTimeNow();
 
                 workday.CreatedOn = now;
@@ -97,13 +97,27 @@ namespace BIMonTime.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateWorkday(int id, WorkdayDetailModel model)
+        public async Task<ActionResult<WorkdayDetailModel>> UpdateWorkday(int id, WorkdayDetailModel model)
         {
-            //if (id != model.Id) return BadRequest();
+            try
+            {
+                if (id != model.Id)
+                    return BadRequest("Id in payload and Id in request doesn't match!");
 
-            //WorkdayModel updatedEntity = await repository.Update(model);
-            //return Ok(updatedEntity);
-            return Ok();
+                var oldWorkday = await repository.GetWorkday(id);
+                if (oldWorkday == null)
+                    NotFound($"Could not find workday with provided id={id}");
+
+                var workday = mapper.Map(model, oldWorkday);
+                workday.UpdatedOn = dateTimeProvider.GetDateTimeNow();
+
+                await repository.UpdateWorkday(workday);
+                return mapper.Map<WorkdayDetailModel>(workday);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
         }
 
         [HttpDelete("{id}")]
@@ -112,15 +126,15 @@ namespace BIMonTime.Web.Controllers
             try
             {
                 await repository.DeleteWorkday(id);
-                return Ok();
+                return Ok($"Workday with id={id} has been deleted!");
             }
             catch (InvalidOperationException ex)
             {
                 return NotFound(ex.Message);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
     }
