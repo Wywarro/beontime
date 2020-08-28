@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace BIMonTime.Data.Models
 {
@@ -12,5 +13,9 @@ namespace BIMonTime.Data.Models
         public string FirstName { get; set; }
         [Required(ErrorMessage = "Last name cannot be empty!")]
         public string LastName { get; set; }
+        [Required(ErrorMessage = "Department name cannot be empty!")]
+        public string DepartmentName { get; set; }
+        [Required(ErrorMessage = "Career started date cannot be empty!")]
+        public DateTime CareerStarted { get; set; }
     }
 }

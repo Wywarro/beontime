@@ -20,33 +20,45 @@ namespace BIMonTime.Web.Controllers
     {
         private readonly IMapper mapper;
         private readonly UserManager<BeOnTimeUser> userManager;
+        private readonly RoleManager<IdentityRole> roleManager;
         private readonly IJwtFactory jwtFactory;
 
         public AccountsController(
             IMapper mapper,
             UserManager<BeOnTimeUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             IJwtFactory jwtFactory)
         {
-            this.mapper = mapper;
             this.userManager = userManager;
+            this.roleManager = roleManager;
             this.jwtFactory = jwtFactory;
+            this.mapper = mapper;
         }
 
-        [HttpPost]
+        [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegistrationViewModel registerModel)
         {
             var userIdentity = mapper.Map<BeOnTimeUser>(registerModel);
-            var result = await userManager.CreateAsync(userIdentity, registerModel.Password);
-            if (!result.Succeeded)
+
+            await CreateRoles();
+
+            var createUserResult = await userManager.CreateAsync(userIdentity, registerModel.Password);
+            if (!createUserResult.Succeeded)
             {
-                return new BadRequestObjectResult(ModelState.AddErrorsToModelState(result));
+                return new BadRequestObjectResult(ModelState.AddErrorsToModelState(createUserResult));
+            }
+
+            var addRoleToUserResult = await userManager.AddToRoleAsync(userIdentity, "Employee");
+            if (!addRoleToUserResult.Succeeded)
+            {
+                return new BadRequestObjectResult(ModelState.AddErrorsToModelState(createUserResult));
             }
 
             return Ok("Account created!");
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] CredentialsViewModel loginModel)
         {
@@ -80,8 +92,9 @@ namespace BIMonTime.Web.Controllers
             // check the credentials
             if (await userManager.CheckPasswordAsync(userToVerify, password))
             {
+                var roles = await userManager.GetRolesAsync(userToVerify);
                 return await Task.FromResult(
-                    jwtFactory.GenerateClaimsIdentity(username, userToVerify.Id));
+                    jwtFactory.GenerateClaimsIdentity(username, userToVerify.Id, roles));
             }
 
             // Credentials are invalid, or account doesn't exist
@@ -90,5 +103,39 @@ namespace BIMonTime.Web.Controllers
 
         private Task<ClaimsIdentity> NullClaimsIdentity() =>
             Task.FromResult<ClaimsIdentity>(null);
+
+        private async Task CreateRoles()
+        {
+            bool x = await roleManager.RoleExistsAsync("Admin");
+            if (!x)
+            {
+                // first we create Admin rool    
+                var role = new IdentityRole
+                {
+                    Name = "Admin"
+                };
+                await roleManager.CreateAsync(role);
+            } 
+            
+            x = await roleManager.RoleExistsAsync("Manager");
+            if (!x)
+            {
+                var role = new IdentityRole
+                {
+                    Name = "Manager"
+                };
+                await roleManager.CreateAsync(role);
+            }
+    
+            x = await roleManager.RoleExistsAsync("Employee");
+            if (!x)
+            {
+                var role = new IdentityRole
+                {
+                    Name = "Employee"
+                };
+                await roleManager.CreateAsync(role);
+            }
+        }
     }
 }

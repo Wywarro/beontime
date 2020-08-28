@@ -23,9 +23,10 @@ namespace BIMonTime.Services.Repositories
             return workday;
         }
 
-        public async Task<IEnumerable<Workday>> GetAllWorkdays()
+        public async Task<IEnumerable<Workday>> GetAllWorkdays(string userId)
         {
-            return await context.Workdays.ToListAsync();
+            return await context.Workdays.Where(
+                (workday) => workday.UserId == userId).ToListAsync();
         }
 
         public async Task<Workday> GetWorkday(int workdayId)
@@ -35,7 +36,9 @@ namespace BIMonTime.Services.Repositories
 
         public async Task<Workday> GetWorkday(DateTime datestamp, string userId)
         {
-            return await context.Workdays.FindAsync(datestamp, userId);
+            return await context.Workdays.SingleOrDefaultAsync(
+                (workday) => workday.Datestamp == datestamp &&
+                workday.UserId == userId);
         }
 
         public async Task UpdateWorkday(Workday workday)

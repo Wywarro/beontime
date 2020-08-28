@@ -43,7 +43,7 @@ namespace BIMonTime.Web
                 options.UseNpgsql(Configuration.GetConnectionString("bimontime.dev"));
             });
 
-            var builder = services.AddIdentityCore<BeOnTimeUser>(options =>
+            services.AddIdentityCore<BeOnTimeUser>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
@@ -51,10 +51,10 @@ namespace BIMonTime.Web
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequiredLength = 8;
                 options.SignIn.RequireConfirmedAccount = true;
-            });
-            builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), builder.Services);
-            builder.AddEntityFrameworkStores<UserDbContext>().AddDefaultTokenProviders();
-
+            })
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<UserDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddAuthentication("oauth")
                 .AddJwtBearer("oauth", config =>
@@ -82,7 +82,7 @@ namespace BIMonTime.Web
             {
                 config.AddPolicy(Policies.Admin, Policies.AdminPolicy());
                 config.AddPolicy(Policies.Manager, Policies.ManagerPolicy());
-                config.AddPolicy(Policies.User, Policies.UserPolicy());
+                config.AddPolicy(Policies.Employee, Policies.EmployeePolicy());
             });
 
             services.AddTransient<IWorkdayRepository, WorkdayRepository>();

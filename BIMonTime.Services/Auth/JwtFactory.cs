@@ -9,13 +9,14 @@ using Microsoft.IdentityModel.Tokens;
 using BIMonTime.Services.DateTimeProvider;
 using BIMonTime.Services.EnvironmentVariables;
 using BIMonTime.Data.Models;
+using System.Collections.Generic;
 
 namespace BIMonTime.Services.Auth
 {
     public interface IJwtFactory
     {
+        ClaimsIdentity GenerateClaimsIdentity(string username, string id, IList<string> roles);
         Task<string> GenerateEncodedToken(string username, ClaimsIdentity identity);
-        ClaimsIdentity GenerateClaimsIdentity(string username, string id);
     }
 
     public class JwtFactory : IJwtFactory
@@ -29,11 +30,12 @@ namespace BIMonTime.Services.Auth
             this.dateTimeProvider = dateTimeProvider;
         }
 
-        public ClaimsIdentity GenerateClaimsIdentity(string username, string id)
+        public ClaimsIdentity GenerateClaimsIdentity(string username, string id, IList<string> roles)
         {
             return new ClaimsIdentity(new GenericIdentity(username, "Token"), new[]
             {
                 new Claim("id", id),
+                new Claim("role", string.Join( ",", roles)),
             });
         }
 
@@ -47,8 +49,8 @@ namespace BIMonTime.Services.Auth
                  new Claim(JwtRegisteredClaimNames.Jti, await JtiGenerator()),
                  new Claim(JwtRegisteredClaimNames.Iat,
                     new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
-                 //new Claim("role", identity.UserRole),
-                 identity.FindFirst("id")
+                 identity.FindFirst("id"),
+                 identity.FindFirst("role")
              };
 
             // Create the JWT security token and encode it.

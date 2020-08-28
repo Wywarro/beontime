@@ -7,6 +7,7 @@ using BIMonTime.Data.Entities;
 using BIMonTime.Data.Models;
 using BIMonTime.Services.DateTimeProvider;
 using BIMonTime.Services.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ namespace BIMonTime.Web.Controllers
 {
     [Route("api/v1/workday")]
     [ApiController]
+    [Authorize(Policy = "Employee")]
     public class WorkdayController : ControllerBase
     {
         private readonly IWorkdayRepository repository;
@@ -23,18 +25,19 @@ namespace BIMonTime.Web.Controllers
         public WorkdayController(IWorkdayRepository repository, IMapper mapper, IDateTimeProvider dateTimeProvider)
         {
             this.repository = repository;
-            this.mapper = mapper;
             this.dateTimeProvider = dateTimeProvider;
+            this.mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<WorkdayModel>>> GetAllWorkdays()
+        public async Task<ActionResult<IEnumerable<WorkdayDetailModel>>> GetAllWorkdays()
         {
+            string userId = User.FindFirst("id")?.Value;
             try
             {
-                var results = await repository.GetAllWorkdays();
+                var results = await repository.GetAllWorkdays(userId);
 
-                WorkdayModel[] models = mapper.Map<WorkdayModel[]>(results);
+                WorkdayDetailModel[] models = mapper.Map<WorkdayDetailModel[]>(results);
 
                 return models;
             }
@@ -45,14 +48,15 @@ namespace BIMonTime.Web.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<WorkdayModel>> Get(int id)
+        public async Task<ActionResult<WorkdayDetailModel>> Get(int id)
         {
             try
             {
                 var entity = await repository.GetWorkday(id);
-                if (entity == null) return NotFound();
+                if (entity == null) 
+                    return NotFound();
 
-                WorkdayModel model = mapper.Map<WorkdayModel>(entity);
+                WorkdayDetailModel model = mapper.Map<WorkdayDetailModel>(entity);
 
                 return model;
             }
@@ -64,20 +68,26 @@ namespace BIMonTime.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<WorkdayModel>> Create(WorkdayModel workdayModel)
+        public async Task<ActionResult<WorkdayDetailModel>> Create(WorkdayDetailModel workdayModel)
         {
-            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+            string userId = User.FindFirst("id")?.Value;
             try
             {
                 var existingWorkday = await repository.GetWorkday(workdayModel.Datestamp, userId);
+                if (existingWorkday != null)
+                {
+                    return BadRequest("Workday already exists at provided date!");
+                }
 
-                var workday = mapper.Map<WorkdayModel, Workday>(workdayModel);
+                var workday = mapper.Map<WorkdayDetailModel, Workday>(workdayModel);
                 var now = dateTimeProvider.GetDateTimeNow();
+
                 workday.CreatedOn = now;
                 workday.UpdatedOn = now;
+                workday.UserId = userId;
+
                 await repository.CreateWorkday(workday);
-                return CreatedAtAction("Get", new { id = workday.Id }, mapper.Map<WorkdayModel>(workday));
+                return CreatedAtAction("Get", new { id = workday.Id }, mapper.Map<WorkdayDetailModel>(workday));
             }
             catch (Exception e)
             {
@@ -87,7 +97,7 @@ namespace BIMonTime.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateWorkday(int id, WorkdayModel model)
+        public IActionResult UpdateWorkday(int id, WorkdayDetailModel model)
         {
             //if (id != model.Id) return BadRequest();
 

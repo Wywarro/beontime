@@ -6,7 +6,7 @@ namespace BIMonTime.Data.Models
     {
         public const string Admin = "Admin";
         public const string Manager = "Manager";
-        public const string User = "User";
+        public const string Employee = "Employee";
 
         public static AuthorizationPolicy AdminPolicy() =>
             new AuthorizationPolicyBuilder().RequireAuthenticatedUser()
@@ -16,8 +16,8 @@ namespace BIMonTime.Data.Models
             new AuthorizationPolicyBuilder().RequireAuthenticatedUser()
                 .RequireRole(Manager).Build();
 
-        public static AuthorizationPolicy UserPolicy() => 
+        public static AuthorizationPolicy EmployeePolicy() => 
             new AuthorizationPolicyBuilder().RequireAuthenticatedUser()
-                .RequireRole(User).Build();
+                .RequireRole(Employee).Build();
     }
 }

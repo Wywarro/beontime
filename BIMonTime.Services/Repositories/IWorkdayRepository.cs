@@ -8,7 +8,7 @@ namespace BIMonTime.Services.Repositories
     public interface IWorkdayRepository
     {
         Task<Workday> CreateWorkday(Workday entity);
-        Task<IEnumerable<Workday>> GetAllWorkdays();
+        Task<IEnumerable<Workday>> GetAllWorkdays(string userId);
         Task<Workday> GetWorkday(int id);
         Task<Workday> GetWorkday(DateTime datestamp, string userId);
         Task UpdateWorkday(Workday entity);
