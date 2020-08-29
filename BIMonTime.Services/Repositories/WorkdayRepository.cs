@@ -8,6 +8,16 @@ using System.Threading.Tasks;
 
 namespace BIMonTime.Services.Repositories
 {
+    public interface IWorkdayRepository
+    {
+        Task<Workday> CreateWorkday(Workday workday);
+        Task<IEnumerable<Workday>> GetAllWorkdays(string userId);
+        Task<Workday> GetWorkday(int id);
+        Task<Workday> GetWorkday(DateTime datestamp, string userId);
+        Task UpdateWorkday(Workday workday);
+        Task DeleteWorkday(int id);
+    }
+
     public class WorkdayRepository : IWorkdayRepository
     {
         private readonly ApplicationDbContext context;
@@ -25,8 +35,8 @@ namespace BIMonTime.Services.Repositories
 
         public async Task<IEnumerable<Workday>> GetAllWorkdays(string userId)
         {
-            return await context.Workdays.Where(
-                (workday) => workday.UserId == userId).ToListAsync();
+            return await context.Workdays.Where(workday =>
+                workday.UserId == userId).ToListAsync();
         }
 
         public async Task<Workday> GetWorkday(int workdayId)
@@ -36,8 +46,8 @@ namespace BIMonTime.Services.Repositories
 
         public async Task<Workday> GetWorkday(DateTime datestamp, string userId)
         {
-            return await context.Workdays.SingleOrDefaultAsync(
-                (workday) => workday.Datestamp == datestamp &&
+            return await context.Workdays.SingleOrDefaultAsync(workday => 
+                workday.Datestamp == datestamp &&
                 workday.UserId == userId);
         }
 

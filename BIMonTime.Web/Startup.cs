@@ -89,6 +89,7 @@ namespace BIMonTime.Web
             });
 
             services.AddTransient<IWorkdayRepository, WorkdayRepository>();
+            services.AddTransient<IAttendanceRepository, AttendanceRepository>();
 
             services.AddSingleton<IJwtFactory, JwtFactory>();
             services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
