@@ -58,7 +58,7 @@ namespace BIMonTime.Services.Auth
                 issuer: config["Jwt:Issuer"],
                 audience: config["Jwt:Audience"],
                 claims: claims,
-                expires: dateTimeProvider.GetDateTimeInHourFromNow(),
+                expires: dateTimeProvider.GetDateTimeNow().AddMinutes(60),
                 signingCredentials: SigningCredentials);
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
