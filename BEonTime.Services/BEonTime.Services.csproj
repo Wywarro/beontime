@@ -11,13 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BIMonTime.Data\BIMonTime.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="libzkfpcsharp">
-      <HintPath>..\..\..\..\..\Windows\SysWOW64\libzkfpcsharp.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\BEonTime.Data\BEonTime.Data.csproj" />
   </ItemGroup>
 
 </Project>

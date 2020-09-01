@@ -159,7 +159,7 @@ namespace BIMonTime.Services.TimeCalculator
 
         private abstract class WorkdayStatusValidator
         {
-            public abstract bool[] Contitions;
+            public abstract bool[] Contitions { get; set; }
         }
     }
 }

@@ -27,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BIMonTime.Data\BIMonTime.Data.csproj" />
-    <ProjectReference Include="..\BIMonTime.Services\BIMonTime.Services.csproj" />
+    <ProjectReference Include="..\BEonTime.Data\BEonTime.Data.csproj" />
+    <ProjectReference Include="..\BEonTime.Services\BEonTime.Services.csproj" />
   </ItemGroup>
 
 </Project>

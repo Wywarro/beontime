@@ -15,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BIMonTime.Data\BIMonTime.Data.csproj" />
-    <ProjectReference Include="..\BIMonTime.Services\BIMonTime.Services.csproj" />
-    <ProjectReference Include="..\BIMonTime.Web\BIMonTime.Web.csproj" />
+    <ProjectReference Include="..\BEonTime.Data\BEonTime.Data.csproj" />
+    <ProjectReference Include="..\BEonTime.Services\BEonTime.Services.csproj" />
+    <ProjectReference Include="..\BEonTime.Web\BEonTime.Web.csproj" />
   </ItemGroup>
 
 </Project>

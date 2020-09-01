@@ -381,5 +381,5 @@ dist
 client_secrets.json
 launchSettings.json
 
-/BIMonTime.Web/out
-/BIMonTime.Data/Migrations
+/BEonTime.Web/out
+/BEonTime.Data/Migrations
