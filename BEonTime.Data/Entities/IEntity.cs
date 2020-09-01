@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BIMonTime.Data.Entities
+namespace BEonTime.Data.Entities
 {
     public interface IEntity
     {

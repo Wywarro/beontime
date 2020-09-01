@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using BIMonTime.Data.Entities;
-using BIMonTime.Services.Repositories;
+using BEonTime.Data.Entities;
+using BEonTime.Services.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BIMonTime.Web.Controllers
+namespace BEonTime.Web.Controllers
 {
     [ApiController]
     public abstract class GenericController<TEntity, TModel, TRepository> : ControllerBase

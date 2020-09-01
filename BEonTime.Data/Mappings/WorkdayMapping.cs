@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using BIMonTime.Data.Entities;
-using BIMonTime.Data.Models;
+using BEonTime.Data.Entities;
+using BEonTime.Data.Models;
 using System;
 using System.Linq;
 
-namespace BIMonTime.Data.Mappings
+namespace BEonTime.Data.Mappings
 {
     public class WorkdayMapping : Profile
     {
@@ -19,14 +19,14 @@ namespace BIMonTime.Data.Mappings
 
             CreateMap<Workday, WorkdayDetailModel>()
                 .ForMember(workmodel => workmodel.Status,
-                map => map.MapFrom(work => 
+                map => map.MapFrom(work =>
                     Enum.GetName(typeof(WorkdayStatus), work.Status).ToSentence()));
 
             CreateMap<WorkdayCreateModel, Workday>()
                 .ForMember(work => work.Status,
                 map => map.MapFrom(workModel =>
                     (WorkdayStatus)Enum.Parse(typeof(WorkdayStatus), workModel.Status.Replace(" ", ""))));
-            
+
             CreateMap<WorkdayUpdateModel, Workday>()
                 .ForMember(work => work.Status,
                 map => map.MapFrom(workModel =>

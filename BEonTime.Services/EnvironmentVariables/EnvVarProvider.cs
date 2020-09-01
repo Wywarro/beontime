@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BIMonTime.Services.EnvironmentVariables
+namespace BEonTime.Services.EnvironmentVariables
 {
     public static class EnvVarProvider
     {

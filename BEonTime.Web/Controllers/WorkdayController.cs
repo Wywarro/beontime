@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
-using BIMonTime.Data.Entities;
-using BIMonTime.Data.Models;
-using BIMonTime.Services.DateTimeProvider;
-using BIMonTime.Services.Repositories;
+using BEonTime.Data.Entities;
+using BEonTime.Data.Models;
+using BEonTime.Services.DateTimeProvider;
+using BEonTime.Services.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BIMonTime.Web.Controllers
+namespace BEonTime.Web.Controllers
 {
     [Route("api/v1/workday")]
     [ApiController]
@@ -56,7 +56,7 @@ namespace BIMonTime.Web.Controllers
             try
             {
                 var entity = await workdayRepo.GetWorkday(id);
-                if (entity == null) 
+                if (entity == null)
                     return NotFound();
 
                 WorkdayDetailModel model = mapper.Map<WorkdayDetailModel>(entity);

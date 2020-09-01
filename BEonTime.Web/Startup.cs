@@ -1,11 +1,11 @@
 using AutoMapper;
-using BIMonTime.Data;
-using BIMonTime.Data.Entities;
-using BIMonTime.Data.Models;
-using BIMonTime.Services.Auth;
-using BIMonTime.Services.DateTimeProvider;
-using BIMonTime.Services.EnvironmentVariables;
-using BIMonTime.Services.Repositories;
+using BEonTime.Data;
+using BEonTime.Data.Entities;
+using BEonTime.Data.Models;
+using BEonTime.Services.Auth;
+using BEonTime.Services.DateTimeProvider;
+using BEonTime.Services.EnvironmentVariables;
+using BEonTime.Services.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -17,7 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
 
-namespace BIMonTime.Web
+namespace BEonTime.Web
 {
     public class Startup
     {
@@ -30,7 +30,7 @@ namespace BIMonTime.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddNewtonsoftJson(options => 
+            services.AddControllers().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.DateFormatString = "dd'-'MM'-'yyyy' 'HH':'mm";
             });
@@ -38,15 +38,15 @@ namespace BIMonTime.Web
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.EnableDetailedErrors();
-                options.UseNpgsql(Configuration.GetConnectionString("bimontime.dev"));
+                options.UseNpgsql(Configuration.GetConnectionString("BEonTime.dev"));
             });
             services.AddDbContext<UserDbContext>(options =>
             {
                 options.EnableDetailedErrors();
-                options.UseNpgsql(Configuration.GetConnectionString("bimontime.dev"));
+                options.UseNpgsql(Configuration.GetConnectionString("BEonTime.dev"));
             });
 
-            services.AddIdentityCore<BeOnTimeUser>(options =>
+            services.AddIdentityCore<BEonTimeUser>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;

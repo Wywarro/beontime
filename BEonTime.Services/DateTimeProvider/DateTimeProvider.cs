@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BIMonTime.Services.DateTimeProvider
+namespace BEonTime.Services.DateTimeProvider
 {
     public interface IDateTimeProvider
     {

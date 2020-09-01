@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using BIMonTime.Data.Entities;
-using BIMonTime.Data.Models;
+using BEonTime.Data.Entities;
+using BEonTime.Data.Models;
 using System;
 
-namespace BIMonTime.Data.Mappings
+namespace BEonTime.Data.Mappings
 {
     public class AttendanceMapping : Profile
     {

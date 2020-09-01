@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 
-namespace BIMonTime.Data.Entities
+namespace BEonTime.Data.Entities
 {
-    public class BeOnTimeUser : IdentityUser
+    public class BEonTimeUser : IdentityUser
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

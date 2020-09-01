@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace BIMonTime.Data.Models
+namespace BEonTime.Data.Models
 {
     public class Policies
     {
@@ -16,7 +16,7 @@ namespace BIMonTime.Data.Models
             new AuthorizationPolicyBuilder().RequireAuthenticatedUser()
                 .RequireRole(Manager).Build();
 
-        public static AuthorizationPolicy EmployeePolicy() => 
+        public static AuthorizationPolicy EmployeePolicy() =>
             new AuthorizationPolicyBuilder().RequireAuthenticatedUser()
                 .RequireRole(Employee).Build();
     }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BIMonTime.Data.Models
+namespace BEonTime.Data.Models
 {
     public class AttendanceDetailModel
     {

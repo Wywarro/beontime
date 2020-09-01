@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BIMonTime.Data.Entities
+namespace BEonTime.Data.Entities
 {
     public class Workday
     {
@@ -22,9 +22,11 @@ namespace BIMonTime.Data.Entities
         InvalidStatus = -1,
 
         Present = 0,
+        ReadyToCalc = 1,
+
         NormalDay = 2,
         Overtime = 3,
-        Underime = 4,
+        Undertime = 4,
         HomeOffice = 5,
 
         VacationLeaveRequested = 611,

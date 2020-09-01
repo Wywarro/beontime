@@ -6,12 +6,12 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using BIMonTime.Services.DateTimeProvider;
-using BIMonTime.Services.EnvironmentVariables;
-using BIMonTime.Data.Models;
+using BEonTime.Services.DateTimeProvider;
+using BEonTime.Services.EnvironmentVariables;
+using BEonTime.Data.Models;
 using System.Collections.Generic;
 
-namespace BIMonTime.Services.Auth
+namespace BEonTime.Services.Auth
 {
     public interface IJwtFactory
     {
@@ -44,7 +44,7 @@ namespace BIMonTime.Services.Auth
             var now = dateTimeProvider.GetDateTimeNow();
 
             var claims = new[]
-            {           
+            {
                  new Claim(JwtRegisteredClaimNames.Sub, username),
                  new Claim(JwtRegisteredClaimNames.Jti, await JtiGenerator()),
                  new Claim(JwtRegisteredClaimNames.Iat,
@@ -69,7 +69,7 @@ namespace BIMonTime.Services.Auth
         public Func<Task<string>> JtiGenerator =>
           () => Task.FromResult(Guid.NewGuid().ToString());
 
-        private SigningCredentials SigningCredentials 
+        private SigningCredentials SigningCredentials
         {
             get
             {

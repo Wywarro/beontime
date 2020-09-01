@@ -1,12 +1,12 @@
-﻿using BIMonTime.Data;
-using BIMonTime.Data.Entities;
+﻿using BEonTime.Data;
+using BEonTime.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BIMonTime.Services.Repositories
+namespace BEonTime.Services.Repositories
 {
     public interface IWorkdayRepository
     {
@@ -46,7 +46,7 @@ namespace BIMonTime.Services.Repositories
 
         public async Task<Workday> GetWorkday(DateTime datestamp, string userId)
         {
-            return await context.Workdays.SingleOrDefaultAsync(workday => 
+            return await context.Workdays.SingleOrDefaultAsync(workday =>
                 workday.Datestamp == datestamp &&
                 workday.UserId == userId);
         }

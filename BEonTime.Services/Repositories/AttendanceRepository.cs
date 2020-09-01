@@ -1,5 +1,5 @@
-﻿using BIMonTime.Data;
-using BIMonTime.Data.Entities;
+﻿using BEonTime.Data;
+using BEonTime.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BIMonTime.Services.Repositories
+namespace BEonTime.Services.Repositories
 {
     public interface IAttendanceRepository
     {
@@ -47,7 +47,7 @@ namespace BIMonTime.Services.Repositories
 
         public async Task<Attendance> GetAttendance(DateTime timestamp, string userId)
         {
-            return await context.Attendances.SingleOrDefaultAsync(attendance => 
+            return await context.Attendances.SingleOrDefaultAsync(attendance =>
                 attendance.Timestamp == timestamp &&
                 attendance.UserId == userId);
         }

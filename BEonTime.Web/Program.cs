@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace BIMonTime.Web
+namespace BEonTime.Web
 {
     public class Program
     {

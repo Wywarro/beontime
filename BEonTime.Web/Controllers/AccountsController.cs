@@ -3,29 +3,28 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
-using BIMonTime.Data.Entities;
-using BIMonTime.Data.Models;
-using BIMonTime.Services.Auth;
-using BIMonTime.Services.DateTimeProvider;
-using BIMonTime.Web.Extensions;
+using BEonTime.Data.Entities;
+using BEonTime.Data.Models;
+using BEonTime.Services.Auth;
+using BEonTime.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BIMonTime.Web.Controllers
+namespace BEonTime.Web.Controllers
 {
     [Route("api/v1/accounts")]
     [ApiController]
     public class AccountsController : ControllerBase
     {
         private readonly IMapper mapper;
-        private readonly UserManager<BeOnTimeUser> userManager;
+        private readonly UserManager<BEonTimeUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IJwtFactory jwtFactory;
 
         public AccountsController(
             IMapper mapper,
-            UserManager<BeOnTimeUser> userManager,
+            UserManager<BEonTimeUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IJwtFactory jwtFactory)
         {
@@ -39,7 +38,7 @@ namespace BIMonTime.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegistrationViewModel registerModel)
         {
-            var userIdentity = mapper.Map<BeOnTimeUser>(registerModel);
+            var userIdentity = mapper.Map<BEonTimeUser>(registerModel);
 
             await CreateRoles();
 
@@ -115,8 +114,8 @@ namespace BIMonTime.Web.Controllers
                     Name = "Admin"
                 };
                 await roleManager.CreateAsync(role);
-            } 
-            
+            }
+
             x = await roleManager.RoleExistsAsync("Manager");
             if (!x)
             {
@@ -126,7 +125,7 @@ namespace BIMonTime.Web.Controllers
                 };
                 await roleManager.CreateAsync(role);
             }
-    
+
             x = await roleManager.RoleExistsAsync("Employee");
             if (!x)
             {

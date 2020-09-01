@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BIMonTime.Data.Models
+namespace BEonTime.Data.Models
 {
     public class CredentialsViewModel
     {

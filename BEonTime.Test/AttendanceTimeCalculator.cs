@@ -1,12 +1,12 @@
-using BIMonTime.Data.Entities;
-using BIMonTime.Services.DateTimeProvider;
-using BIMonTime.Services.TimeCalculator;
+using BEonTime.Data.Entities;
+using BEonTime.Services.DateTimeProvider;
+using BEonTime.Services.TimeCalculator;
 using Moq;
 using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace BIMonTime.Test
+namespace BEonTime.Test
 {
     public class AttendanceTimeCalculatorTest
     {
@@ -101,7 +101,7 @@ namespace BIMonTime.Test
             IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
             timeCalculator.GetWorkingTime(workday);
 
-            Assert.Equal(expected: WorkdayStatus.NormalDay, actual: workday.Status);
+            Assert.Equal(expected: WorkdayStatus.ReadyToCalc, actual: workday.Status);
         }
 
         [Theory]
@@ -150,8 +150,11 @@ namespace BIMonTime.Test
             Assert.Equal(expected: WorkdayStatus.Present, actual: workday.Status);
         }
 
-        [Fact]
-        public void When_istoday_one_in_one_breakstart_one_out_then_status_is_InvalidLogs()
+        [Theory]
+        [InlineData(EntryMode.Out)]
+        [InlineData(EntryMode.In)]
+        [InlineData(EntryMode.BreakStart)]
+        public void When_istoday_one_in_one_breakstart_one_out_then_status_is_InvalidLogs(EntryMode attStatusPayload)
         {
             Workday workday = new Workday()
             {
@@ -163,7 +166,7 @@ namespace BIMonTime.Test
                     new Attendance()
                     { Status = EntryMode.BreakStart, Timestamp = new DateTime(2020, 9, 29,  10, 2, 10) },
                     new Attendance()
-                    { Status = EntryMode.Out, Timestamp = new DateTime(2020, 9, 29,  11, 2, 10) }
+                    { Status = attStatusPayload, Timestamp = new DateTime(2020, 9, 29,  11, 2, 10) }
                 }
             };
 
@@ -186,7 +189,7 @@ namespace BIMonTime.Test
                     new Attendance()
                     { Status = EntryMode.Out, Timestamp = new DateTime(2020, 9, 29,  11, 2, 10) },
                     new Attendance()
-                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  11, 2, 10) }
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  12, 2, 10) }
                 }
             };
 
@@ -218,11 +221,15 @@ namespace BIMonTime.Test
             IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
             timeCalculator.GetWorkingTime(workday);
 
-            Assert.Equal(expected: WorkdayStatus.NormalDay, actual: workday.Status);
+            Assert.Equal(expected: WorkdayStatus.ReadyToCalc, actual: workday.Status);
         }
 
-        [Fact]
-        public void When_isnottoday_one_in_then_status_is_InvalidLogs()
+        [Theory]
+        [InlineData(EntryMode.In)]
+        [InlineData(EntryMode.Out)]
+        [InlineData(EntryMode.BreakStart)]
+        [InlineData(EntryMode.BreakEnd)]
+        public void When_isnottoday_one_in_then_status_is_InvalidLogs(EntryMode attStatusPayload)
         {
             Workday workday = new Workday()
             {
@@ -230,7 +237,7 @@ namespace BIMonTime.Test
                 Attendances = new List<Attendance>
             {
                 new Attendance()
-                { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 28,  8, 2, 10) }
+                { Status = attStatusPayload, Timestamp = new DateTime(2020, 9, 28,  8, 2, 10) }
             }
             };
 

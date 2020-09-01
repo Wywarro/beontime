@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BIMonTime.Data.Entities
+namespace BEonTime.Data.Entities
 {
     public class Attendance
     {

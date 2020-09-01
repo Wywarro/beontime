@@ -1,10 +1,10 @@
-﻿using BIMonTime.Data.Entities;
+﻿using BEonTime.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BIMonTime.Services.Repositories
+namespace BEonTime.Services.Repositories
 {
     public abstract class GenericRepository<TEntity, TContext> : IRepository<TEntity>
         where TEntity : class, IEntity

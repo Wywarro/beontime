@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace BIMonTime.Web.Extensions
+namespace BEonTime.Web.Extensions
 {
     public static class ModelStateExtension
     {

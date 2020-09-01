@@ -1,10 +1,10 @@
-﻿using BIMonTime.Data.Entities;
+﻿using BEonTime.Data.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace BIMonTime.Data
+namespace BEonTime.Data
 {
-    public class UserDbContext : IdentityDbContext<BeOnTimeUser>
+    public class UserDbContext : IdentityDbContext<BEonTimeUser>
     {
         public UserDbContext()
         { }

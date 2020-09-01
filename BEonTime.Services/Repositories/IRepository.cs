@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using BIMonTime.Data.Entities;
+using BEonTime.Data.Entities;
 
-namespace BIMonTime.Services.Repositories
+namespace BEonTime.Services.Repositories
 {
     public interface IRepository<T> where T : class, IEntity
     {

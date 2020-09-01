@@ -1,7 +1,7 @@
-﻿using BIMonTime.Data.Entities;
+﻿using BEonTime.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace BIMonTime.Data
+namespace BEonTime.Data
 {
     public class ApplicationDbContext : DbContext
     {

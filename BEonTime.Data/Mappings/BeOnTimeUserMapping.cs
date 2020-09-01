@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
-using BIMonTime.Data.Entities;
-using BIMonTime.Data.Models;
+using BEonTime.Data.Entities;
+using BEonTime.Data.Models;
 
-namespace BIMonTime.Data.Mappings
+namespace BEonTime.Data.Mappings
 {
     public class BeOnTimeUserMapping : Profile
     {
         public BeOnTimeUserMapping()
         {
-            CreateMap<RegistrationViewModel, BeOnTimeUser>().ForMember(
+            CreateMap<RegistrationViewModel, BEonTimeUser>().ForMember(
                 au => au.UserName, map => map.MapFrom(vm => vm.Email));
-            
-            CreateMap<CredentialsViewModel, BeOnTimeUser>();
+
+            CreateMap<CredentialsViewModel, BEonTimeUser>();
         }
     }
 }
