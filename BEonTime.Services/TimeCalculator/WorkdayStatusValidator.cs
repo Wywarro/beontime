@@ -10,17 +10,23 @@ namespace BEonTime.Services.TimeCalculator
     {
         public static ChainHandler GenerateStatus(Workday workday, DateTime now)
         {
+            var unexcusedAbsenceHandler = new UnexcusedAbsenceStatusHandler(workday, now);
+            var todayInvalidLogsHandler = new TodayInvalidLogsStatusHandler(workday, now);
             var presentHandler = new PresentHandler(workday, now);
             var breakHandler = new BreakStatusHandler(workday, now);
             var rdyToCalcHandler = new ReadyToCalcStatusHandler(workday, now);
-            var unexcusedAbsenceHandler = new UnexcusedAbsenceStatusHandler(workday, now);
-            var invalidLogsHandler = new InvalidLogsStatusHandler(workday, now);
+            var notTodayInvalidLogsHandler = new NotTodayInvalidLogsStatusHandler(workday, now);
             var invalidStatusHandler = new InvalidStatusHandler(workday, now);
 
-            presentHandler.SetNext(breakHandler).SetNext(rdyToCalcHandler).SetNext(unexcusedAbsenceHandler)
-                .SetNext(invalidLogsHandler).SetNext(invalidStatusHandler);
+            unexcusedAbsenceHandler
+                .SetNext(todayInvalidLogsHandler)
+                .SetNext(presentHandler)
+                .SetNext(breakHandler)
+                .SetNext(rdyToCalcHandler)
+                .SetNext(notTodayInvalidLogsHandler)
+                .SetNext(invalidStatusHandler);
 
-            return presentHandler;
+            return unexcusedAbsenceHandler;
         }
     }
 
@@ -72,7 +78,26 @@ namespace BEonTime.Services.TimeCalculator
         }
     }
 
-    public class PresentHandler : ChainHandler
+    public class GenericHandler : ChainHandler
+    {
+        public GenericHandler(Workday workday, DateTime now)
+           : base(workday, now)
+        { }
+
+
+        protected override WorkdayStatus StatusToSet => throw new NotImplementedException();
+        protected override bool[] Conditions => throw new NotImplementedException();
+
+        public override object Handle()
+        {
+            if (Conditions.All(cond => cond))
+                return StatusToSet;
+            else
+                return base.Handle();
+        }
+    }
+
+    public class PresentHandler : GenericHandler
     {
         public PresentHandler(Workday workday, DateTime now)
             : base(workday, now)
@@ -90,17 +115,9 @@ namespace BEonTime.Services.TimeCalculator
             }
         }
         protected override WorkdayStatus StatusToSet => WorkdayStatus.Present;
-
-        public override object Handle()
-        {
-            if (Conditions.All(cond => cond))
-                return StatusToSet;
-            else
-                return base.Handle();
-        }
     }
 
-    public class BreakStatusHandler : ChainHandler
+    public class BreakStatusHandler : GenericHandler
     {
         public BreakStatusHandler(Workday workday, DateTime now)
             : base(workday, now)
@@ -118,17 +135,9 @@ namespace BEonTime.Services.TimeCalculator
             }
         }
         protected override WorkdayStatus StatusToSet => WorkdayStatus.Break;
-
-        public override object Handle()
-        {
-            if (Conditions.All(cond => cond))
-                return StatusToSet;
-            else
-                return base.Handle();
-        }
     }
 
-    public class ReadyToCalcStatusHandler : ChainHandler
+    public class ReadyToCalcStatusHandler : GenericHandler
     {
         public ReadyToCalcStatusHandler(Workday workday, DateTime now)
             : base(workday, now)
@@ -146,17 +155,9 @@ namespace BEonTime.Services.TimeCalculator
             }
         }
         protected override WorkdayStatus StatusToSet => WorkdayStatus.ReadyToCalc;
-
-        public override object Handle()
-        {
-            if (Conditions.All(cond => cond))
-                return StatusToSet;
-            else
-                return base.Handle();
-        }
     }
 
-    public class UnexcusedAbsenceStatusHandler : ChainHandler
+    public class UnexcusedAbsenceStatusHandler : GenericHandler
     {
         private DateTime Now { get; set; }
         private int AttsCount { get; set; }
@@ -179,20 +180,12 @@ namespace BEonTime.Services.TimeCalculator
             }
         }
         protected override WorkdayStatus StatusToSet => WorkdayStatus.UnexcusedAbsence;
-
-        public override object Handle()
-        {
-            if (Conditions.All(cond => cond))
-                return StatusToSet;
-            else
-                return base.Handle();
-        }
     }
 
-    public class InvalidLogsStatusHandler : ChainHandler
+    public class TodayInvalidLogsStatusHandler : GenericHandler
     {
-        private List<Attendance> Attendances { get; set; }
-        public InvalidLogsStatusHandler(Workday workday, DateTime now)
+        protected List<Attendance> Attendances { get; set; }
+        public TodayInvalidLogsStatusHandler(Workday workday, DateTime now)
             : base(workday, now)
         {
             Attendances = workday.Attendances;
@@ -203,17 +196,18 @@ namespace BEonTime.Services.TimeCalculator
             {
                 return new bool[]
                 {
-                    Attendances.Count > 0,
-                    !IsWorkdayToday && Attendances.Count % 2 != 0,
-                    (Attendances?.First()?.Status ?? EntryMode.In) != EntryMode.In
-                }.Concat(CheckAtts()).ToArray();
+                    FirstAttendanceIsNotIn() ||
+                    AreAttendancesInvalid()
+                };
             }
         }
+
+        protected bool FirstAttendanceIsNotIn() => (Attendances.FirstOrDefault()?.Status ?? EntryMode.In) != EntryMode.In;
+
         protected override WorkdayStatus StatusToSet => WorkdayStatus.InvalidLogs;
 
-        private bool[] CheckAtts()
+        protected bool AreAttendancesInvalid()
         {
-            List<bool> attConds = new List<bool>();
             for (int i = 0; i < Attendances.Count - 1; i++)
             {
                 var attendance = Attendances[i];
@@ -222,36 +216,46 @@ namespace BEonTime.Services.TimeCalculator
                     .Skip(1).DefaultIfEmpty(Attendances[0]).FirstOrDefault();
 
                 AttValidator validator = GenerateAttValidator(attendance);
-                bool nextAttValid = validator.AllowedNextModes
-                    ?.Any(mod => mod == nextAttendance.Status) ?? true;
-                attConds.Add(nextAttValid);
+                bool nextAttInvalid = validator.AllowedNextModes
+                    ?.All(mod => mod != nextAttendance.Status) ?? true;
+                if (nextAttInvalid)
+                    return nextAttInvalid;
             }
-            return attConds.ToArray();
-        }
-
-        public override object Handle()
-        {
-            if (Conditions.All(cond => cond))
-                return StatusToSet;
-            else
-                return base.Handle();
+            return false;
         }
     }
 
-    public class InvalidStatusHandler : ChainHandler
+    public class NotTodayInvalidLogsStatusHandler : TodayInvalidLogsStatusHandler
+    {
+        public NotTodayInvalidLogsStatusHandler(Workday workday, DateTime now)
+            : base(workday, now)
+        {
+            Attendances = workday.Attendances;
+        }
+        protected override bool[] Conditions
+        {
+            get
+            {
+                return new bool[]
+                {
+                    (!IsWorkdayToday &&
+                    Attendances.Count > 0 &&
+                    Attendances.Count % 2 != 0) ||
+                    FirstAttendanceIsNotIn() ||
+                    AreAttendancesInvalid() ||
+                    Ins - Outs != 0 ||
+                    BreakStarts - BreakEnds != 0
+                };
+            }
+        }
+    }
+
+    public class InvalidStatusHandler : GenericHandler
     {
         public InvalidStatusHandler(Workday workday, DateTime now)
             : base(workday, now)
         { }
         protected override bool[] Conditions { get => new bool[] { true }; }
         protected override WorkdayStatus StatusToSet => WorkdayStatus.InvalidStatus;
-
-        public override object Handle()
-        {
-            if (Conditions.All(cond => cond))
-                return StatusToSet;
-            else
-                return base.Handle();
-        }
     }
 }

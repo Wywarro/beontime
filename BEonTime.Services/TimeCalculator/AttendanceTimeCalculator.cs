@@ -16,17 +16,18 @@ namespace BEonTime.Services.TimeCalculator
     public class AttendanceTimeCalculator : IAttendanceTimeCalculator
     {
         private readonly IDateTimeProvider dateTimeProvider;
-        private readonly DateTime now;
 
         public AttendanceTimeCalculator(IDateTimeProvider dateTimeProvider)
         {
             this.dateTimeProvider = dateTimeProvider;
-            now = dateTimeProvider.GetDateTimeNow();
         }
 
         public void GetWorkingTime(Workday workday)
         {
-            SetStatus(workday);
+            if (workday.IsStatusMutable())
+            {
+                SetStatus(workday);
+            }
 
             workday.BreakDuration = TimeSpan.FromSeconds(60);
             workday.WorkDuration = TimeSpan.FromSeconds(50);
@@ -34,6 +35,8 @@ namespace BEonTime.Services.TimeCalculator
 
         private void SetStatus(Workday workday)
         {
+            DateTime now = dateTimeProvider.GetDateTimeNow();
+
             ChainHandler handler = GenerateStatus(workday, now);
             var result = handler.Handle();
             workday.Status = (WorkdayStatus) result;

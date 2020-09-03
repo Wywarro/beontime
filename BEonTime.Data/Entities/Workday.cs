@@ -32,8 +32,8 @@ namespace BEonTime.Data.Entities
         VacationLeaveRequested = 611,
         VacationLeaveApproved = 612,
         PaidLeave = 62,
-        FamilyCare = 64,
-        BusinessTrip = 65,
+        ParentalLeave = 64,
+        BusinessTripLeave = 65,
         OvertimeLeave = 67,
         SicknessLeave = 68,
 
