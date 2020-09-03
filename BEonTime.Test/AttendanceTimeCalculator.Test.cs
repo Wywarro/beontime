@@ -94,6 +94,35 @@ namespace BEonTime.Test
             Assert.Equal(expected: WorkdayStatus.InvalidLogs, actual: workday.Status);
         }
 
+        [Theory]
+        [InlineData(WorkdayStatus.VacationLeaveRequested)]
+        [InlineData(WorkdayStatus.VacationLeaveApproved)]
+        [InlineData(WorkdayStatus.PaidLeave)]
+        [InlineData(WorkdayStatus.ParentalLeave)]
+        [InlineData(WorkdayStatus.BusinessTripLeave)]
+        [InlineData(WorkdayStatus.OvertimeLeave)]
+        [InlineData(WorkdayStatus.SicknessLeave)]
+        public void When_workday_status_is_immutable_then_status_remains(WorkdayStatus immutableStatus)
+        {
+            Workday workday = new Workday()
+            {
+                Datestamp = new DateTime(2020, 9, 29),
+                Status = immutableStatus,
+                Attendances = new List<Attendance>
+                {
+                    new Attendance()
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  8, 2, 10) },
+                    new Attendance()
+                    { Status = EntryMode.BreakEnd, Timestamp = new DateTime(2020, 9, 29,  8, 2, 10) },
+                }
+            };
+
+            IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
+            timeCalculator.GetWorkingTime(workday);
+
+            Assert.Equal(expected: immutableStatus, actual: workday.Status);
+        }
+
         [Fact]
         public void When_istoday_one_in_one_breakstart_then_status_is_Break()
         {
