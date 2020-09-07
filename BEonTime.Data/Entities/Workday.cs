@@ -37,6 +37,7 @@ namespace BEonTime.Data.Entities
         OvertimeLeave = 67,
         SicknessLeave = 68,
 
+        NotAtWorkYet = 7,
         Break = 8,
         InvalidLogs = 9,
         UnexcusedAbsence = 10

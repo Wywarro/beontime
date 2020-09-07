@@ -22,7 +22,7 @@ namespace BEonTime.Services.TimeCalculator
                 WorkdayStatus.InvalidLogs,
                 WorkdayStatus.UnexcusedAbsence,
             };
-            return mutableStatuses.Any(immStat => immStat == workday.Status);
+            return mutableStatuses.Any(stat => stat == workday.Status);
         }
 
         public static bool IsStatusImmutable(this Workday workday)
@@ -38,7 +38,7 @@ namespace BEonTime.Services.TimeCalculator
                 WorkdayStatus.OvertimeLeave,
                 WorkdayStatus.SicknessLeave,
             };
-            return immutableStatuses.Any(immStat => immStat == workday.Status);
+            return immutableStatuses.Any(stat => stat == workday.Status);
         }
 
         public static bool MakeCalculations(this Workday workday)
@@ -52,7 +52,7 @@ namespace BEonTime.Services.TimeCalculator
                 WorkdayStatus.Undertime,
                 WorkdayStatus.Break,
             };
-            return calculableStatuses.Any(immStat => immStat == workday.Status);
+            return calculableStatuses.Any(stat => stat == workday.Status);
         }
     }
 }

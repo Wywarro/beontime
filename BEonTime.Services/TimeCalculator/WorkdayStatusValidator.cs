@@ -11,6 +11,7 @@ namespace BEonTime.Services.TimeCalculator
         public static StatusChainHandler GenerateStatus(Workday workday, DateTime now)
         {
             var unexcusedAbsenceHandler = new UnexcusedAbsenceStatusHandler(workday, now);
+            var notYetAtWorkHandler = new NotYetAtWorkStatusHandler(workday, now);
             var todayInvalidLogsHandler = new TodayInvalidLogsStatusHandler(workday, now);
             var presentHandler = new PresentHandler(workday, now);
             var breakHandler = new BreakStatusHandler(workday, now);
@@ -19,6 +20,7 @@ namespace BEonTime.Services.TimeCalculator
             var invalidStatusHandler = new InvalidStatusHandler(workday, now);
 
             unexcusedAbsenceHandler
+                .SetNext(notYetAtWorkHandler)
                 .SetNext(todayInvalidLogsHandler)
                 .SetNext(presentHandler)
                 .SetNext(breakHandler)
@@ -162,13 +164,16 @@ namespace BEonTime.Services.TimeCalculator
 
     public class UnexcusedAbsenceStatusHandler : GenericHandler
     {
-        private DateTime Now { get; set; }
-        private int AttsCount { get; set; }
+        protected DateTime Now { get; set; }
+        protected int AttsCount { get; set; }
+        protected DateTime WorkdayStamp { get; }
+
         public UnexcusedAbsenceStatusHandler(Workday workday, DateTime now)
             : base(workday, now)
         {
             Now = now;
             AttsCount = workday.Attendances.Count;
+            WorkdayStamp = workday.Datestamp;
         }
         protected override bool[] Conditions
         {
@@ -177,12 +182,32 @@ namespace BEonTime.Services.TimeCalculator
                 return new bool[]
                 {
                     !IsWorkdayToday,
-                    Now.TimeOfDay.Hours > 9,
-                    AttsCount== 0
+                    (Now - WorkdayStamp).TotalHours > 24 + 9,
+                    AttsCount == 0
                 };
             }
         }
         protected override WorkdayStatus StatusToSet => WorkdayStatus.UnexcusedAbsence;
+    }
+
+    public class NotYetAtWorkStatusHandler : UnexcusedAbsenceStatusHandler
+    {
+        public NotYetAtWorkStatusHandler(Workday workday, DateTime now)
+            : base(workday, now)
+        { }
+
+        protected override bool[] Conditions
+        {
+            get
+            {
+                return new bool[]
+                {
+                    (Now - WorkdayStamp).TotalHours < 24 + 9,
+                    AttsCount == 0
+                };
+            }
+        }
+        protected override WorkdayStatus StatusToSet => WorkdayStatus.NotAtWorkYet;
     }
 
     public class TodayInvalidLogsStatusHandler : GenericHandler

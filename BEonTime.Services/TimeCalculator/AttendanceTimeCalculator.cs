@@ -18,6 +18,8 @@ namespace BEonTime.Services.TimeCalculator
         private readonly IDateTimeProvider dateTimeProvider;
         private Workday _workday;
 
+        private readonly int NearestMinutes = 5;
+
         private readonly DateTime now;
 
         public AttendanceTimeCalculator(IDateTimeProvider dateTimeProvider)
@@ -34,10 +36,12 @@ namespace BEonTime.Services.TimeCalculator
                 SetStatus();
 
             if (_workday.MakeCalculations())
-                CalculateWorkingTime();
-                CalculateBreak();
-
-            _workday.BreakDuration = TimeSpan.FromSeconds(60);
+            {
+                _workday.BreakDuration = CalculateWorkingTime(EntryMode.BreakStart, EntryMode.BreakEnd,
+                    () => _workday.Status = WorkdayStatus.Present);
+                _workday.WorkDuration = CalculateWorkingTime(EntryMode.In, EntryMode.Out,
+                    () => _workday.Status = WorkdayStatus.NotAtWorkYet) - _workday.BreakDuration;
+            }
         }
 
         private void SetStatus()
@@ -47,44 +51,31 @@ namespace BEonTime.Services.TimeCalculator
             _workday.Status = (WorkdayStatus) result;
         }
 
-        private void CalculateWorkingTime()
+        public delegate void RevertStatus();
+
+        private TimeSpan CalculateWorkingTime(EntryMode entryStart, EntryMode entryEnd, RevertStatus revertStatus)
         {
             List<Attendance> attendances = _workday.Attendances;
-            var todayLastAtt = new Attendance { Timestamp = now, Status = EntryMode.Out };
+            var todayLastAtt = new Attendance { Timestamp = now, Status = entryEnd };
 
-            var inOutPairs = attendances.Where(att => att.Status == EntryMode.In)
-                .Select((att, i) => new Tuple<Attendance, Attendance>(
-                    att,
-                    attendances
-                        .SkipWhile(x => x != att)
-                        .FirstOrDefault(att => att.Status == EntryMode.Out) ?? todayLastAtt)).ToList();
-
-            foreach (var inOut in inOutPairs)
-            {
-                TimeSpan workDuration = inOut.Item2.Timestamp - inOut.Item1.Timestamp;
-                _workday.WorkDuration += workDuration;
-            }
-        }
-
-        private void CalculateBreak()
-        {
-            List<Attendance> attendances = _workday.Attendances;
-            var todayLastAtt = new Attendance { Timestamp = now, Status = EntryMode.BreakEnd };
-
-            var inOutPairs = attendances.Where(att => att.Status == EntryMode.BreakStart)
+            var startEndPairs = attendances.Where(att => att.Status == entryStart)
                 .Select(att => new Tuple<Attendance, Attendance>(
                     att,
                     attendances
                         .SkipWhile(x => x != att)
-                        .FirstOrDefault(att => att.Status == EntryMode.BreakEnd) ?? todayLastAtt)).ToList();
+                        .FirstOrDefault(att => att.Status == entryEnd) ?? todayLastAtt)).ToList();
 
-            foreach (var inOut in inOutPairs)
+            TimeSpan duration = TimeSpan.Zero;
+            foreach (var startEnd in startEndPairs)
             {
-                TimeSpan breakDuration = inOut.Item2.Timestamp - inOut.Item1.Timestamp;
-                _workday.BreakDuration += breakDuration;
+                TimeSpan workDuration = startEnd.Item2.Timestamp - startEnd.Item1.Timestamp;
+                if (workDuration.Ticks >= 0)
+                    duration += workDuration;
+                else
+                    revertStatus();
             }
 
-            _workday.WorkDuration -= _workday.BreakDuration;
+            return duration.RoundToNearestMinutes(NearestMinutes);
         }
     }
 }

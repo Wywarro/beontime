@@ -38,6 +38,8 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.Present, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(4 * 60 + 50), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(0 * 60 + 0), actual: workday.BreakDuration);
         }
 
 
@@ -50,7 +52,7 @@ namespace BEonTime.Test
                 Attendances = new List<Attendance>
                 {
                     new Attendance()
-                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  8, 2, 10) },
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  7, 33, 10) },
                     new Attendance()
                     { Status = EntryMode.BreakStart, Timestamp = new DateTime(2020, 9, 29,  9, 2, 10) },
                     new Attendance()
@@ -70,6 +72,8 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.Present, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(2 * 60 + 15), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(3 * 60 + 0), actual: workday.BreakDuration);
         }
 
         [Theory]
@@ -124,7 +128,7 @@ namespace BEonTime.Test
         }
 
         [Fact]
-        public void When_istoday_one_in_one_breakstart_then_status_is_Break()
+        public void When_istoday_one_early_in_one_breakstart_then_status_is_Break()
         {
             Workday workday = new Workday()
             {
@@ -132,7 +136,7 @@ namespace BEonTime.Test
                 Attendances = new List<Attendance>
                 {
                     new Attendance()
-                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  8, 2, 10) },
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  6, 21, 10) },
                     new Attendance()
                     { Status = EntryMode.BreakStart, Timestamp = new DateTime(2020, 9, 29,  10, 2, 10) }
                 }
@@ -142,10 +146,12 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.Break, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(3 * 60 + 40), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(2 * 60 + 50), actual: workday.BreakDuration);
         }
 
         [Fact]
-        public void When_istoday_one_in_multiple_breakStarts_followed_by_breakEnds_last_is_breakStart_then_status_is_Break()
+        public void When_istoday_one_late_in_one_breakstart_then_status_is_Break()
         {
             Workday workday = new Workday()
             {
@@ -153,7 +159,30 @@ namespace BEonTime.Test
                 Attendances = new List<Attendance>
                 {
                     new Attendance()
-                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  8, 2, 10) },
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  8, 21, 10) },
+                    new Attendance()
+                    { Status = EntryMode.BreakStart, Timestamp = new DateTime(2020, 9, 29,  10, 2, 10) }
+                }
+            };
+
+            IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
+            timeCalculator.GetWorkingTime(workday);
+
+            Assert.Equal(expected: WorkdayStatus.Break, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(1 * 60 + 40), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(2 * 60 + 50), actual: workday.BreakDuration);
+        }
+
+        [Fact]
+        public void When_istoday_one_in_multiple_breakStarts_followed_by_breakEnds_last_is_breakStart_with_stamp_after_now_then_status_is_Present()
+        {
+            Workday workday = new Workday()
+            {
+                Datestamp = new DateTime(2020, 9, 29),
+                Attendances = new List<Attendance>
+                {
+                    new Attendance()
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  5, 59, 10) },
                     new Attendance()
                     { Status = EntryMode.BreakStart, Timestamp = new DateTime(2020, 9, 29,  9, 2, 10) },
                     new Attendance()
@@ -170,11 +199,34 @@ namespace BEonTime.Test
             IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
             timeCalculator.GetWorkingTime(workday);
 
-            Assert.Equal(expected: WorkdayStatus.Break, actual: workday.Status);
+            Assert.Equal(expected: WorkdayStatus.Present, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(4 * 60 + 50), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(2 * 60 + 00), actual: workday.BreakDuration);
         }
 
         [Fact]
-        public void When_istoday_one_in_one_out_then_status_is_ReadyToCalc()
+        public void When_istoday_one_in_with_stamp_after_now_then_status_is_Present()
+        {
+            Workday workday = new Workday()
+            {
+                Datestamp = new DateTime(2020, 9, 29),
+                Attendances = new List<Attendance>
+                {
+                    new Attendance()
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  13, 59, 10) },
+                }
+            };
+
+            IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
+            timeCalculator.GetWorkingTime(workday);
+
+            Assert.Equal(expected: WorkdayStatus.NotAtWorkYet, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(0 * 60 + 0), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(0 * 60 + 0), actual: workday.BreakDuration);
+        }
+
+        [Fact]
+        public void When_istoday_in_at_8_out_at_10_then_status_is_ReadyToCalc_and_workDuration_2h()
         {
             Workday workday = new Workday()
             {
@@ -192,33 +244,12 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.ReadyToCalc, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(2 * 60 + 0), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(0 * 60 + 0), actual: workday.BreakDuration);
         }
 
         [Fact]
-        public void When_istoday_in_at_8_out_at_10_then_workDuration_2()
-        {
-            Workday workday = new Workday()
-            {
-                Datestamp = new DateTime(2020, 9, 29),
-                Attendances = new List<Attendance>
-                {
-                    new Attendance()
-                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  8, 2, 10) },
-                    new Attendance()
-                    { Status = EntryMode.Out, Timestamp = new DateTime(2020, 9, 29,  10, 2, 10) }
-                }
-            };
-
-            IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
-            timeCalculator.GetWorkingTime(workday);
-
-            Assert.Equal(expected: TimeSpan.FromHours(2), actual: workday.WorkDuration);
-        }
-
-        //new DateTime(2020, 9, 29, 12, 50, 10);
-
-        [Fact]
-        public void When_istoday_multiple_ins_followed_by_outs_then_status_is_ReadyToCalc()
+        public void When_istoday_multiple_ins_followed_by_outs_then_status_is_ReadyToCalc_and_workDuration_is_4h()
         {
             Workday workday = new Workday()
             {
@@ -244,7 +275,33 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.ReadyToCalc, actual: workday.Status);
-            Assert.Equal(expected: TimeSpan.FromHours(4), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(4 * 60 + 0), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(0 * 60 + 0), actual: workday.BreakDuration);
+        }
+
+        [Fact]
+        public void When_istoday_one_in_one_out_one_in_after_now_then_status_is_NotAtWorkYet_and_workDuration_is_6h_45min()
+        {
+            Workday workday = new Workday()
+            {
+                Datestamp = new DateTime(2020, 9, 29),
+                Attendances = new List<Attendance>
+                {
+                    new Attendance()
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  5, 2, 10) },
+                    new Attendance()
+                    { Status = EntryMode.Out, Timestamp = new DateTime(2020, 9, 29,  11, 49, 10) },
+                    new Attendance()
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  13, 2, 10) },
+                }
+            };
+
+            IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
+            timeCalculator.GetWorkingTime(workday);
+
+            Assert.Equal(expected: WorkdayStatus.NotAtWorkYet, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(6 * 60 + 45), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(0 * 60 + 0), actual: workday.BreakDuration);
         }
 
         [Theory]
@@ -279,9 +336,9 @@ namespace BEonTime.Test
                 Attendances = new List<Attendance>
                 {
                     new Attendance()
-                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  8, 2, 10) },
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  9, 24, 10) },
                     new Attendance()
-                    { Status = EntryMode.BreakStart, Timestamp = new DateTime(2020, 9, 29,  10, 2, 10) },
+                    { Status = EntryMode.BreakStart, Timestamp = new DateTime(2020, 9, 29,  10, 12, 10) },
                     new Attendance()
                     { Status = EntryMode.BreakEnd, Timestamp = new DateTime(2020, 9, 29,  11, 2, 10) }
                 }
@@ -291,6 +348,8 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.Present, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(2 * 60 + 35), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(0 * 60 + 50), actual: workday.BreakDuration);
         }
 
         [Theory]
@@ -309,7 +368,7 @@ namespace BEonTime.Test
                     new Attendance()
                     { Status = EntryMode.BreakStart, Timestamp = new DateTime(2020, 9, 29,  10, 2, 10) },
                     new Attendance()
-                    { Status = attStatusPayload, Timestamp = new DateTime(2020, 9, 29,  11, 2, 10) }
+                    { Status = attStatusPayload, Timestamp = new DateTime(2020, 9, 29,  15, 2, 10) }
                 }
             };
 
@@ -340,6 +399,8 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.Present, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromMinutes(3 * 60 + 50), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(0 * 60 + 0), actual: workday.BreakDuration);
         }
 
         [Fact]
@@ -365,7 +426,8 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.ReadyToCalc, actual: workday.Status);
-            Assert.Equal(expected: TimeSpan.FromHours(3), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(3 * 60 + 0), actual: workday.WorkDuration);
+            Assert.Equal(expected: TimeSpan.FromMinutes(1 * 60 + 0), actual: workday.BreakDuration);
         }
 
         [Theory]
@@ -481,7 +543,27 @@ namespace BEonTime.Test
             IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
             timeCalculator.GetWorkingTime(workday);
 
-            Assert.Equal(expected: WorkdayStatus.InvalidStatus, actual: workday.Status);
+            Assert.Equal(expected: WorkdayStatus.UnexcusedAbsence, actual: workday.Status);
+        }
+
+        [Fact]
+        public void When_day_after_today_no_attendances_its_before_9_then_status_is_NotAtWorkYet()
+        {
+            DateTime now = new DateTime(2020, 9, 10, 8, 50, 10);
+            Mock.Get(mockDateTimeProv)
+                .Setup(dat => dat.GetDateTimeNow())
+                .Returns(now);
+
+            Workday workday = new Workday()
+            {
+                Datestamp = new DateTime(2020, 9, 9),
+                Attendances = new List<Attendance>()
+            };
+
+            IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
+            timeCalculator.GetWorkingTime(workday);
+
+            Assert.Equal(expected: WorkdayStatus.NotAtWorkYet, actual: workday.Status);
         }
     }
 }
