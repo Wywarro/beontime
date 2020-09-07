@@ -195,6 +195,29 @@ namespace BEonTime.Test
         }
 
         [Fact]
+        public void When_istoday_in_at_8_out_at_10_then_workDuration_2()
+        {
+            Workday workday = new Workday()
+            {
+                Datestamp = new DateTime(2020, 9, 29),
+                Attendances = new List<Attendance>
+                {
+                    new Attendance()
+                    { Status = EntryMode.In, Timestamp = new DateTime(2020, 9, 29,  8, 2, 10) },
+                    new Attendance()
+                    { Status = EntryMode.Out, Timestamp = new DateTime(2020, 9, 29,  10, 2, 10) }
+                }
+            };
+
+            IAttendanceTimeCalculator timeCalculator = new AttendanceTimeCalculator(mockDateTimeProv);
+            timeCalculator.GetWorkingTime(workday);
+
+            Assert.Equal(expected: TimeSpan.FromHours(2), actual: workday.WorkDuration);
+        }
+
+        //new DateTime(2020, 9, 29, 12, 50, 10);
+
+        [Fact]
         public void When_istoday_multiple_ins_followed_by_outs_then_status_is_ReadyToCalc()
         {
             Workday workday = new Workday()
@@ -221,6 +244,7 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.ReadyToCalc, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromHours(4), actual: workday.WorkDuration);
         }
 
         [Theory]
@@ -341,6 +365,7 @@ namespace BEonTime.Test
             timeCalculator.GetWorkingTime(workday);
 
             Assert.Equal(expected: WorkdayStatus.ReadyToCalc, actual: workday.Status);
+            Assert.Equal(expected: TimeSpan.FromHours(3), actual: workday.WorkDuration);
         }
 
         [Theory]

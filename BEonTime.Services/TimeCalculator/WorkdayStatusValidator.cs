@@ -8,7 +8,7 @@ namespace BEonTime.Services.TimeCalculator
 {
     public static class WorkdayStatusValidator
     {
-        public static ChainHandler GenerateStatus(Workday workday, DateTime now)
+        public static StatusChainHandler GenerateStatus(Workday workday, DateTime now)
         {
             var unexcusedAbsenceHandler = new UnexcusedAbsenceStatusHandler(workday, now);
             var todayInvalidLogsHandler = new TodayInvalidLogsStatusHandler(workday, now);
@@ -38,7 +38,30 @@ namespace BEonTime.Services.TimeCalculator
 
     public abstract class ChainHandler : IHandler
     {
-        public ChainHandler(Workday workday, DateTime now)
+        private IHandler nextHandler;
+
+        public IHandler SetNext(IHandler handler)
+        {
+            nextHandler = handler;
+            return handler;
+        }
+
+        public virtual object Handle()
+        {
+            if (nextHandler != null)
+            {
+                return nextHandler.Handle();
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
+    public abstract class StatusChainHandler : ChainHandler
+    {
+        public StatusChainHandler(Workday workday, DateTime now)
         {
             List<Attendance> attendances = workday.Attendances;
 
@@ -56,29 +79,9 @@ namespace BEonTime.Services.TimeCalculator
         protected int BreakEnds { get; set; }
         protected abstract bool[] Conditions { get; }
         protected abstract WorkdayStatus StatusToSet { get; }
-
-        private IHandler nextHandler;
-
-        public IHandler SetNext(IHandler handler)
-        {
-            nextHandler = handler;
-            return handler;
-        }
-        
-        public virtual object Handle()
-        {
-            if (nextHandler != null)
-            {
-                return nextHandler.Handle();
-            }
-            else
-            {
-                return null;
-            }
-        }
     }
 
-    public class GenericHandler : ChainHandler
+    public abstract class GenericHandler : StatusChainHandler
     {
         public GenericHandler(Workday workday, DateTime now)
            : base(workday, now)

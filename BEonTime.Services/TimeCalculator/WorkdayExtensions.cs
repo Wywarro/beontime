@@ -40,5 +40,19 @@ namespace BEonTime.Services.TimeCalculator
             };
             return immutableStatuses.Any(immStat => immStat == workday.Status);
         }
+
+        public static bool MakeCalculations(this Workday workday)
+        {
+            WorkdayStatus[] calculableStatuses = new WorkdayStatus[]
+            {
+                WorkdayStatus.Present,
+                WorkdayStatus.ReadyToCalc,
+                WorkdayStatus.NormalDay,
+                WorkdayStatus.Overtime,
+                WorkdayStatus.Undertime,
+                WorkdayStatus.Break,
+            };
+            return calculableStatuses.Any(immStat => immStat == workday.Status);
+        }
     }
 }
