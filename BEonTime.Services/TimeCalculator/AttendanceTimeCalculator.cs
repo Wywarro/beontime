@@ -3,7 +3,6 @@ using BEonTime.Services.DateTimeProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static BEonTime.Services.TimeCalculator.AttendanceValidatorFactory;
 using static BEonTime.Services.TimeCalculator.WorkdayStatusValidator;
 
 namespace BEonTime.Services.TimeCalculator
@@ -15,16 +14,12 @@ namespace BEonTime.Services.TimeCalculator
 
     public class AttendanceTimeCalculator : IAttendanceTimeCalculator
     {
-        private readonly IDateTimeProvider dateTimeProvider;
         private Workday _workday;
-
-        private readonly int NearestMinutes = 5;
-
         private readonly DateTime now;
+        private readonly int NearestMinutes = 5;
 
         public AttendanceTimeCalculator(IDateTimeProvider dateTimeProvider)
         {
-            this.dateTimeProvider = dateTimeProvider;
             now = dateTimeProvider.GetDateTimeNow();
         }
 
@@ -38,11 +33,14 @@ namespace BEonTime.Services.TimeCalculator
             if (_workday.MakeCalculations())
             {
                 _workday.BreakDuration = CalculateWorkingTime(EntryMode.BreakStart, EntryMode.BreakEnd,
-                    () => _workday.Status = WorkdayStatus.Present);
+                    RevertToPresent());
                 _workday.WorkDuration = CalculateWorkingTime(EntryMode.In, EntryMode.Out,
-                    () => _workday.Status = WorkdayStatus.NotAtWorkYet) - _workday.BreakDuration;
+                    RevertToNotAtWorkYet()) - _workday.BreakDuration;
             }
         }
+
+        private RevertStatus RevertToPresent() => () => _workday.Status = WorkdayStatus.Present;
+        private RevertStatus RevertToNotAtWorkYet() => () => _workday.Status = WorkdayStatus.NotAtWorkYet;
 
         private void SetStatus()
         {

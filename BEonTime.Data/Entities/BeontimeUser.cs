@@ -9,5 +9,6 @@ namespace BEonTime.Data.Entities
         public string LastName { get; set; }
         public string DepartmentName { get; set; }
         public DateTime CareerStarted { get; set; }
+        public DeviceUser DeviceUser { get; set; }
     }
 }
