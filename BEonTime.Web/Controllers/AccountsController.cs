@@ -93,7 +93,7 @@ namespace BEonTime.Web.Controllers
             {
                 var roles = await userManager.GetRolesAsync(userToVerify);
                 return await Task.FromResult(
-                    jwtFactory.GenerateClaimsIdentity(username, userToVerify.Id, roles));
+                    jwtFactory.GenerateClaimsIdentity(username, userToVerify.Id.ToString(), roles));
             }
 
             // Credentials are invalid, or account doesn't exist

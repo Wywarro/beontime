@@ -13,7 +13,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson.Serialization.Conventions;
+using Newtonsoft.Json;
 using System;
 using System.Text;
 
@@ -32,32 +35,32 @@ namespace BEonTime.Web
         {
             services.AddControllers().AddNewtonsoftJson(options =>
             {
+                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Local;
                 options.SerializerSettings.DateFormatString = "dd'-'MM'-'yyyy' 'HH':'mm";
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                options.EnableDetailedErrors();
-                options.UseNpgsql(Configuration.GetConnectionString("BEonTime.dev"));
-            });
-            services.AddDbContext<UserDbContext>(options =>
-            {
-                options.EnableDetailedErrors();
-                options.UseNpgsql(Configuration.GetConnectionString("BEonTime.dev"));
-            });
+            ConventionRegistry.Register(
+                "Camel Case", 
+                new ConventionPack { new CamelCaseElementNameConvention() }, 
+                _ => true);
 
-            services.AddIdentityCore<BEonTimeUser>(options =>
+            services.Configure<MongoDBOptions>(options =>
             {
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequiredLength = 8;
-                options.SignIn.RequireConfirmedAccount = true;
-            })
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<UserDbContext>()
-                .AddDefaultTokenProviders();
+                var mongoOptions = Configuration.GetSection("MongoDBOptions").Get<MongoDBOptions>();
+
+                string passDb = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
+                string userDb = Environment.GetEnvironmentVariable("DATABASE_USERNAME");
+                string bareConnectionString = mongoOptions.ConnectionString;
+                string connectionString = bareConnectionString
+                    .Replace("<password>", passDb)
+                    .Replace("<username>", userDb);
+
+                options.ConnectionString = connectionString;
+                options.Database = mongoOptions.Database;
+                options.User = mongoOptions.User;
+                options.Role = mongoOptions.Role;
+            });
 
             services.AddAuthentication("oauth")
                 .AddJwtBearer("oauth", config =>
@@ -88,6 +91,13 @@ namespace BEonTime.Web
                 config.AddPolicy(Policies.Employee, Policies.EmployeePolicy());
             });
 
+            services.AddLogging(options =>
+            {
+                options.AddDebug();
+                options.AddConsole();
+            });
+
+            services.AddTransient<IAppDbContext, AppDbContext>();
             services.AddTransient<IWorkdayRepository, WorkdayRepository>();
             services.AddTransient<IAttendanceRepository, AttendanceRepository>();
 

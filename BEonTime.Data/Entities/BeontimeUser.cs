@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AspNetCore.Identity.Mongo.Model;
+using Microsoft.AspNetCore.Identity;
 using System;
+
 
 namespace BEonTime.Data.Entities
 {
-    public class BEonTimeUser : IdentityUser
+    public class BEonTimeUser : MongoUser
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
