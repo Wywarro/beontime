@@ -7,7 +7,7 @@ namespace BEonTime.Data.Models
 {
     public class WorkdayListModel
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Status { get; set; }
         public DateTime Datestamp { get; set; }
         public TimeSpan WorkDuration { get; set; }
@@ -18,7 +18,7 @@ namespace BEonTime.Data.Models
 
     public class WorkdayDetailModel
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime UpdatedOn { get; set; }
         public string Status { get; set; }
@@ -31,7 +31,7 @@ namespace BEonTime.Data.Models
 
     public class WorkdayUpdateModel
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Status { get; set; }
         public DateTime Datestamp { get; set; }
         public bool Verified { get; set; }

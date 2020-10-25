@@ -1,5 +1,10 @@
-﻿namespace BEonTime.Data.Entities
+﻿using BEonTime.Data.Attributes;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace BEonTime.Data.Entities
 {
+    [BsonIgnoreExtraElements]
+    [BsonCollection("deviceUsers")]
     public class DeviceUser
     {
         public int UserId { get; set; }

@@ -1,12 +1,14 @@
-﻿using System;
+﻿using BEonTime.Data.Attributes;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 
 namespace BEonTime.Data.Entities
 {
-    public class Workday
+    [BsonIgnoreExtraElements]
+    [BsonCollection("workdays")]
+    public class Workday : Document
     {
-        public int Id { get; set; }
-        public DateTime CreatedOn { get; set; }
         public DateTime UpdatedOn { get; set; }
         public string UserId { get; set; }
         public WorkdayStatus Status { get; set; }
@@ -41,5 +43,24 @@ namespace BEonTime.Data.Entities
         Break = 8,
         InvalidLogs = 9,
         UnexcusedAbsence = 10
+    }
+
+    [BsonIgnoreExtraElements]
+    public class Attendance
+    {
+        public DateTime UpdatedOn { get; set; }
+        public string UserId { get; set; }
+        public int WorkdayId { get; set; }
+        public Workday Workday { get; set; }
+        public EntryMode Status { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+
+    public enum EntryMode
+    {
+        In = 0,
+        Out = 1,
+        BreakEnd = 2,
+        BreakStart = 3
     }
 }

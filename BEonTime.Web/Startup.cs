@@ -39,6 +39,12 @@ namespace BEonTime.Web
                 options.SerializerSettings.DateFormatString = "dd'-'MM'-'yyyy' 'HH':'mm";
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
+            services.AddRazorPages().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Local;
+                options.SerializerSettings.DateFormatString = "dd'-'MM'-'yyyy' 'HH':'mm";
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+            });
 
             ConventionRegistry.Register(
                 "Camel Case", 
@@ -47,7 +53,8 @@ namespace BEonTime.Web
 
             services.Configure<MongoDBOptions>(options =>
             {
-                var mongoOptions = Configuration.GetSection("MongoDBOptions").Get<MongoDBOptions>();
+                var mongoOptions = new MongoDBOptions();
+                Configuration.Bind("MongoDBOptions", mongoOptions);
 
                 string passDb = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
                 string userDb = Environment.GetEnvironmentVariable("DATABASE_USERNAME");
@@ -99,7 +106,6 @@ namespace BEonTime.Web
 
             services.AddTransient<IAppDbContext, AppDbContext>();
             services.AddTransient<IWorkdayRepository, WorkdayRepository>();
-            services.AddTransient<IAttendanceRepository, AttendanceRepository>();
 
             services.AddSingleton<IJwtFactory, JwtFactory>();
             services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
@@ -131,6 +137,7 @@ namespace BEonTime.Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapRazorPages();
             });
         }
     }

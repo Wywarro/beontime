@@ -37,7 +37,8 @@ namespace BEonTime.Web.Areas.Identity
                       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                     identityOptions.User.RequireUniqueEmail = true;
                 }, mongoIdentityOptions => {
-                    var mongoOptions = context.Configuration.GetSection("MongoDBOptions").Get<MongoDBOptions>();
+                    var mongoOptions = new MongoDBOptions();
+                    context.Configuration.Bind("MongoDBOptions", mongoOptions);
 
                     string passDb = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
                     string userDb = Environment.GetEnvironmentVariable("DATABASE_USERNAME");

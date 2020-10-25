@@ -19,15 +19,13 @@ namespace BEonTime.Web.Controllers
     public class WorkdayController : ControllerBase
     {
         private readonly IWorkdayRepository workdayRepo;
-        private readonly IAttendanceRepository attendanceRepo;
         private readonly IMapper mapper;
         private readonly IDateTimeProvider dateTimeProvider;
 
-        public WorkdayController(IWorkdayRepository workdayRepo, IAttendanceRepository attendanceRepo,
+        public WorkdayController(IWorkdayRepository workdayRepo,
             IMapper mapper, IDateTimeProvider dateTimeProvider)
         {
             this.workdayRepo = workdayRepo;
-            this.attendanceRepo = attendanceRepo;
             this.dateTimeProvider = dateTimeProvider;
             this.mapper = mapper;
         }
@@ -38,7 +36,8 @@ namespace BEonTime.Web.Controllers
             string userId = User.FindFirst("id")?.Value;
             try
             {
-                var results = await workdayRepo.GetAllWorkdays(userId);
+                var results = await workdayRepo.FilterByAsync(
+                    workday => workday.UserId == userId);
 
                 WorkdayListModel[] models = mapper.Map<WorkdayListModel[]>(results);
 
@@ -51,11 +50,11 @@ namespace BEonTime.Web.Controllers
         }
 
         [HttpGet("{id}", Name = "GetWorkdayById")]
-        public async Task<ActionResult<WorkdayDetailModel>> GetWorkday(int id)
+        public async Task<ActionResult<WorkdayDetailModel>> GetWorkday(string id)
         {
             try
             {
-                var entity = await workdayRepo.GetWorkday(id);
+                var entity = await workdayRepo.FindByIdAsync(id);
                 if (entity == null)
                     return NotFound();
 
@@ -76,7 +75,9 @@ namespace BEonTime.Web.Controllers
             string userId = User.FindFirst("id")?.Value;
             try
             {
-                var existingWorkday = await workdayRepo.GetWorkday(workdayModel.Datestamp, userId);
+                var existingWorkday = await workdayRepo.FilterByAsync(workday => 
+                    workday.Datestamp == workdayModel.Datestamp &&
+                    workday.UserId == userId);
                 if (existingWorkday != null)
                 {
                     return BadRequest("Workday already exists at provided date!");
@@ -85,11 +86,10 @@ namespace BEonTime.Web.Controllers
                 var workday = mapper.Map<WorkdayCreateModel, Workday>(workdayModel);
                 var now = dateTimeProvider.GetDateTimeNow();
 
-                workday.CreatedOn = now;
                 workday.UpdatedOn = now;
                 workday.UserId = userId;
 
-                await workdayRepo.CreateWorkday(workday);
+                await workdayRepo.InsertOneAsync(workday);
                 return CreatedAtRoute("GetWorkdayById", new { id = workday.Id }, mapper.Map<WorkdayDetailModel>(workday));
             }
             catch (Exception e)
@@ -99,21 +99,21 @@ namespace BEonTime.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<WorkdayDetailModel>> UpdateWorkday(int id, WorkdayUpdateModel model)
+        public async Task<ActionResult<WorkdayDetailModel>> UpdateWorkday(string id, WorkdayUpdateModel model)
         {
             try
             {
                 if (id != model.Id)
                     return BadRequest("Id of workday in payload and Id in request doesn't match!");
 
-                var oldWorkday = await workdayRepo.GetWorkday(id);
+                var oldWorkday = await workdayRepo.FindByIdAsync(id);
                 if (oldWorkday == null)
                     NotFound($"Could not find workday with provided id={id}");
 
                 var workday = mapper.Map(model, oldWorkday);
                 workday.UpdatedOn = dateTimeProvider.GetDateTimeNow();
 
-                await workdayRepo.UpdateWorkday(workday);
+                await workdayRepo.ReplaceOneAsync(workday);
                 return mapper.Map<WorkdayDetailModel>(workday);
             }
             catch (Exception e)
@@ -123,15 +123,15 @@ namespace BEonTime.Web.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteWorkday(int id)
+        public async Task<ActionResult> DeleteWorkday(string id)
         {
             try
             {
-                var oldWorkday = await workdayRepo.GetWorkday(id);
+                var oldWorkday = await workdayRepo.FindByIdAsync(id);
                 if (oldWorkday == null)
                     NotFound($"Could not find workday with provided id={id}");
 
-                await workdayRepo.DeleteWorkday(id);
+                await workdayRepo.DeleteByIdAsync(id);
                 return Ok($"Workday with id={id} has been deleted!");
             }
             catch (InvalidOperationException ex)
@@ -151,25 +151,24 @@ namespace BEonTime.Web.Controllers
             bool isManager = User.IsInRole(Policies.Admin) || User.IsInRole(Policies.Manager);
             try
             {
-                var getParentWorkday = await workdayRepo.GetWorkday(attendanceModel.Timestamp.Date, userId);
-
+                var getParentWorkday = await workdayRepo.FindOneAsync(workday =>
+                    workday.Datestamp == attendanceModel.Timestamp.Date &&
+                    workday.UserId == userId);
                 var attendance = mapper.Map<AttendanceCreateModel, Attendance>(attendanceModel);
                 var now = dateTimeProvider.GetDateTimeNow();
 
-                attendance.CreatedOn = now;
                 attendance.UpdatedOn = now;
                 attendance.UserId = userId;
 
                 if (getParentWorkday != null)
                 {
                     getParentWorkday.Attendances.Add(attendance);
-                    await workdayRepo.UpdateWorkday(getParentWorkday);
+                    await workdayRepo.ReplaceOneAsync(getParentWorkday);
                 }
                 else
                 {
                     Workday newWorkday = new Workday()
                     {
-                        CreatedOn = now,
                         UpdatedOn = now,
                         UserId = userId,
                         Datestamp = attendance.Timestamp.Date,
@@ -179,7 +178,7 @@ namespace BEonTime.Web.Controllers
                             attendance
                         },
                     };
-                    await workdayRepo.CreateWorkday(newWorkday);
+                    await workdayRepo.InsertOneAsync(newWorkday);
                 }
 
                 return CreatedAtRoute("GetWorkdayById", new { id = getParentWorkday.Id }, mapper.Map<WorkdayDetailModel>(getParentWorkday));

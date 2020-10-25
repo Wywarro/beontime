@@ -7,10 +7,10 @@ namespace BEonTime.Data.Models
 {
     public class MongoDBOptions
     {
-        public string ConnectionString;
-        public string Database;
-        public CollectionOptions User;
-        public CollectionOptions Role;
+        public string ConnectionString { get; set; }
+        public string Database { get; set; }
+        public CollectionOptions User { get; set; } = new CollectionOptions();
+        public CollectionOptions Role { get; set; } = new CollectionOptions();
     }
 
     public class CollectionOptions
