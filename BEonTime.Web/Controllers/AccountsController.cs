@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AspNetCore.Identity.Mongo.Model;
 using AutoMapper;
 using BEonTime.Data.Entities;
 using BEonTime.Data.Models;
@@ -19,13 +20,13 @@ namespace BEonTime.Web.Controllers
     {
         private readonly IMapper mapper;
         private readonly UserManager<BEonTimeUser> userManager;
-        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly RoleManager<MongoRole> roleManager;
         private readonly IJwtFactory jwtFactory;
 
         public AccountsController(
             IMapper mapper,
             UserManager<BEonTimeUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<MongoRole> roleManager,
             IJwtFactory jwtFactory)
         {
             this.userManager = userManager;
@@ -51,7 +52,7 @@ namespace BEonTime.Web.Controllers
             var addRoleToUserResult = await userManager.AddToRoleAsync(userIdentity, "Employee");
             if (!addRoleToUserResult.Succeeded)
             {
-                return new BadRequestObjectResult(ModelState.AddErrorsToModelState(createUserResult));
+                return new BadRequestObjectResult(ModelState.AddErrorsToModelState(addRoleToUserResult));
             }
 
             return Ok("Account created!");
@@ -69,7 +70,7 @@ namespace BEonTime.Web.Controllers
 
             var response = new
             {
-                id = identity.Claims.Single(c => c.Type == "id").Value,
+                id = identity.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value,
                 auth_token = await jwtFactory.GenerateEncodedToken(loginModel.Username, identity),
                 expires_in = TimeSpan.FromMinutes(120)
             };
@@ -109,7 +110,7 @@ namespace BEonTime.Web.Controllers
             if (!x)
             {
                 // first we create Admin rool    
-                var role = new IdentityRole
+                var role = new MongoRole
                 {
                     Name = "Admin"
                 };
@@ -119,7 +120,7 @@ namespace BEonTime.Web.Controllers
             x = await roleManager.RoleExistsAsync("Manager");
             if (!x)
             {
-                var role = new IdentityRole
+                var role = new MongoRole
                 {
                     Name = "Manager"
                 };
@@ -129,7 +130,7 @@ namespace BEonTime.Web.Controllers
             x = await roleManager.RoleExistsAsync("Employee");
             if (!x)
             {
-                var role = new IdentityRole
+                var role = new MongoRole
                 {
                     Name = "Employee"
                 };

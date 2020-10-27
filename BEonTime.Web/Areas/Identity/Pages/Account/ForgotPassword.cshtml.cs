@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using BEonTime.Data.Entities;
+using IEmailSender = BEonTime.Services.EmailSender.IEmailSender;
 
 namespace BEonTime.Web.Areas.Identity.Pages.Account
 {

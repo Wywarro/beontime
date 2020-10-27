@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using IEmailSender = BEonTime.Services.EmailSender.IEmailSender;
+using AspNetCore.Identity.Mongo.Model;
+using BEonTime.Web.Extensions;
 
 namespace BEonTime.Web.Areas.Identity.Pages.Account
 {
@@ -22,12 +25,14 @@ namespace BEonTime.Web.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<BEonTimeUser> _signInManager;
         private readonly UserManager<BEonTimeUser> _userManager;
+        private readonly RoleManager<MongoRole> _roleManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
             UserManager<BEonTimeUser> userManager,
             SignInManager<BEonTimeUser> signInManager,
+            RoleManager<MongoRole> roleManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -35,6 +40,7 @@ namespace BEonTime.Web.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _roleManager = roleManager;
         }
 
         [BindProperty]
@@ -71,45 +77,77 @@ namespace BEonTime.Web.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl = returnUrl ?? Url.Content("~/");
+            returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return Page();
+
+            var user = new BEonTimeUser { UserName = Input.Email, Email = Input.Email };
+            await CreateRoles();
+
+            var createUserResult = await _userManager.CreateAsync(user, Input.Password);
+            if (!createUserResult.Succeeded)
             {
-                var user = new BEonTimeUser { UserName = Input.Email, Email = Input.Email };
-                var result = await _userManager.CreateAsync(user, Input.Password);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User created a new account with password.");
+                ModelState.AddErrorsToModelState(createUserResult);
+                return Page();
+            }
+            _logger.LogInformation("User created a new account with password.");
 
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
+            var addRoleToUserResult = await _userManager.AddToRoleAsync(user, "Employee");
+            if (!addRoleToUserResult.Succeeded)
+            {
+                ModelState.AddErrorsToModelState(addRoleToUserResult);
+                return Page();
+            }
+            _logger.LogInformation("User was assigned to Employee role.");
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = Url.Page(
+                "/Account/ConfirmEmail",
+                pageHandler: null,
+                values: new { area = "Identity", userId = user.Id, code, returnUrl },
+                protocol: Request.Scheme);
 
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+            await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+            if (_userManager.Options.SignIn.RequireConfirmedAccount)
+            {
+                return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
+            }
+            else
+            {
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return LocalRedirect(returnUrl);
+            }  
+        }
+
+        private async Task CreateRoles()
+        {
+            bool x = await _roleManager.RoleExistsAsync("Admin");
+            if (!x)
+            {  
+                var role = new MongoRole
+                { Name = "Admin" };
+                await _roleManager.CreateAsync(role);
             }
 
-            // If we got this far, something failed, redisplay form
-            return Page();
+            x = await _roleManager.RoleExistsAsync("Manager");
+            if (!x)
+            {
+                var role = new MongoRole
+                { Name = "Manager" };
+                await _roleManager.CreateAsync(role);
+            }
+
+            x = await _roleManager.RoleExistsAsync("Employee");
+            if (!x)
+            {
+                var role = new MongoRole
+                { Name = "Employee" };
+                await _roleManager.CreateAsync(role);
+            }
         }
     }
 }

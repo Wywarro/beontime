@@ -34,8 +34,8 @@ namespace BEonTime.Services.Auth
         {
             return new ClaimsIdentity(new GenericIdentity(username, "Token"), new[]
             {
-                new Claim("id", id),
-                new Claim("role", string.Join( ",", roles)),
+                new Claim(ClaimTypes.NameIdentifier, id),
+                new Claim(ClaimTypes.Role, string.Join( ",", roles)),
             });
         }
 
@@ -49,8 +49,8 @@ namespace BEonTime.Services.Auth
                  new Claim(JwtRegisteredClaimNames.Jti, await JtiGenerator()),
                  new Claim(JwtRegisteredClaimNames.Iat,
                     new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
-                 identity.FindFirst("id"),
-                 identity.FindFirst("role")
+                 identity.FindFirst(ClaimTypes.NameIdentifier),
+                 identity.FindFirst(ClaimTypes.Role)
              };
 
             // Create the JWT security token and encode it.

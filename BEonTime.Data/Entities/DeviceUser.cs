@@ -7,7 +7,8 @@ namespace BEonTime.Data.Entities
     [BsonCollection("deviceUsers")]
     public class DeviceUser
     {
-        public int UserId { get; set; }
+        public string UserId { get; set; }
+        public int DeviceUserId { get; set; }
         public string Name { get; set; }
         public int Card { get; set; }
         public int GroupId { get; set; }

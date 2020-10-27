@@ -1,15 +1,13 @@
 using AutoMapper;
 using BEonTime.Data;
-using BEonTime.Data.Entities;
 using BEonTime.Data.Models;
 using BEonTime.Services.Auth;
 using BEonTime.Services.DateTimeProvider;
+using BEonTime.Services.EmailSender;
 using BEonTime.Services.EnvironmentVariables;
 using BEonTime.Services.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -69,6 +67,19 @@ namespace BEonTime.Web
                 options.Role = mongoOptions.Role;
             });
 
+            services.Configure<EmailSenderMetadata>(metadata =>
+            {
+                string emailPass = Environment.GetEnvironmentVariable("EMAIL_SENDER_PASSWORD");
+                var emailSender = new EmailSenderMetadata
+                { Password = emailPass };
+                Configuration.Bind("EmailSender", emailSender);
+
+                metadata.Password = emailSender.Password;
+                metadata.Port = emailSender.Port;
+                metadata.SmtpServer = emailSender.SmtpServer;
+                metadata.Username = emailSender.Username;
+            });
+
             services.AddAuthentication("oauth")
                 .AddJwtBearer("oauth", config =>
                 {
@@ -109,6 +120,8 @@ namespace BEonTime.Web
 
             services.AddSingleton<IJwtFactory, JwtFactory>();
             services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+            services.AddSingleton<IEmailSender, EmailSender>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }

@@ -49,7 +49,6 @@ namespace BEonTime.Data.Entities
     public class Attendance
     {
         public DateTime UpdatedOn { get; set; }
-        public string UserId { get; set; }
         public int WorkdayId { get; set; }
         public Workday Workday { get; set; }
         public EntryMode Status { get; set; }
