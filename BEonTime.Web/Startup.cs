@@ -6,6 +6,7 @@ using BEonTime.Services.DateTimeProvider;
 using BEonTime.Services.EmailSender;
 using BEonTime.Services.EnvironmentVariables;
 using BEonTime.Services.Repositories;
+using BEonTime.Web.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson.Serialization.Conventions;
 using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Text;
 
@@ -44,6 +46,18 @@ namespace BEonTime.Web
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("VueCorsPolicy", builder =>
+                {
+                    builder
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .WithOrigins("https://localhost:5001");
+                });
+            });
+
             ConventionRegistry.Register(
                 "Camel Case", 
                 new ConventionPack { new CamelCaseElementNameConvention() }, 
@@ -51,17 +65,9 @@ namespace BEonTime.Web
 
             services.Configure<MongoDBOptions>(options =>
             {
-                var mongoOptions = new MongoDBOptions();
-                Configuration.Bind("MongoDBOptions", mongoOptions);
+                var mongoOptions = CreateMongoDBOptions(Configuration);
 
-                string passDb = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
-                string userDb = Environment.GetEnvironmentVariable("DATABASE_USERNAME");
-                string bareConnectionString = mongoOptions.ConnectionString;
-                string connectionString = bareConnectionString
-                    .Replace("<password>", passDb)
-                    .Replace("<username>", userDb);
-
-                options.ConnectionString = connectionString;
+                options.ConnectionString = mongoOptions.ConnectionString;
                 options.Database = mongoOptions.Database;
                 options.User = mongoOptions.User;
                 options.Role = mongoOptions.Role;
@@ -126,6 +132,23 @@ namespace BEonTime.Web
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }
 
+        public static MongoDBOptions CreateMongoDBOptions(IConfiguration configuration)
+        {
+            var mongoOptions = new MongoDBOptions();
+            configuration.Bind("MongoDBOptions", mongoOptions);
+
+            string passDb = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
+            string userDb = Environment.GetEnvironmentVariable("DATABASE_USERNAME");
+            string bareConnectionString = mongoOptions.ConnectionString;
+            string connectionString = bareConnectionString
+                .Replace("<password>", passDb)
+                .Replace("<username>", userDb);
+
+            mongoOptions.ConnectionString = connectionString;
+
+            return mongoOptions;
+        }
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -134,16 +157,17 @@ namespace BEonTime.Web
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
+            app.UseHttpsRedirection();
+            app.UseCookiePolicy();
+
+            app.UseSerilogRequestLogging();
             app.UseRouting();
 
             app.UseAuthentication();
 
-            app.UseCors(builder => builder
-                .WithOrigins(
-                    "http://localhost:8080")
-            );
+            app.UseCors("VueCorsPolicy");
 
             app.UseAuthorization();
 
@@ -151,6 +175,19 @@ namespace BEonTime.Web
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
+            });
+            app.UseSpaStaticFiles();
+
+            app.UseSpa(configuration: builder =>
+            {
+                if (env.IsDevelopment())
+                {
+                    builder.UseProxyToSpaDevelopmentServer("http://localhost:8080");
+                }
+                else
+                {
+                    builder.Options.SourcePath = @"ClientApp/dist";
+                }
             });
         }
     }

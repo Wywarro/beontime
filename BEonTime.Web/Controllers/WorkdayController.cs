@@ -33,155 +33,112 @@ namespace BEonTime.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorkdayListModel>>> GetAllWorkdays()
         {
-            try
-            {
-                string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var results = await workdayRepo.FilterByAsync(
-                    workday => workday.UserId == userId);
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var results = await workdayRepo.FilterByAsync(
+                workday => workday.UserId == userId);
 
-                WorkdayListModel[] models = mapper.Map<WorkdayListModel[]>(results);
+            WorkdayListModel[] models = mapper.Map<WorkdayListModel[]>(results);
 
-                return models;
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-            }
+            return models;
         }
 
         [HttpGet("{id}", Name = "GetWorkdayById")]
         public async Task<ActionResult<WorkdayDetailModel>> GetWorkday(string id)
         {
-            try
-            {
-                var entity = await workdayRepo.FindByIdAsync(id);
-                if (entity == null)
-                    return NotFound($"Could not find workday with provided id={id}");
+            var entity = await workdayRepo.FindByIdAsync(id);
+            if (entity == null)
+                return NotFound($"Could not find workday with provided id={id}");
 
-                WorkdayDetailModel model = mapper.Map<WorkdayDetailModel>(entity);
+            WorkdayDetailModel model = mapper.Map<WorkdayDetailModel>(entity);
 
-                return model;
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-            }
-
+            return model;
         }
 
         [HttpPost]
         public async Task<ActionResult<WorkdayDetailModel>> CreateWorkday(WorkdayCreateModel workdayModel)
         {
-            try
-            {
-                string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var existingWorkday = await workdayRepo.FilterByAsync(workday => 
-                    workday.Datestamp == workdayModel.Datestamp &&
-                    workday.UserId == userId);
-                if (existingWorkday != null)
-                    return BadRequest("Workday already exists at provided date!");
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var existingWorkday = await workdayRepo.FilterByAsync(workday => 
+                workday.Datestamp == workdayModel.Datestamp &&
+                workday.UserId == userId);
+            if (existingWorkday != null)
+                return BadRequest("Workday already exists at provided date!");
 
-                var workday = mapper.Map<WorkdayCreateModel, Workday>(workdayModel);
-                var now = dateTimeProvider.GetDateTimeNow();
+            var workday = mapper.Map<WorkdayCreateModel, Workday>(workdayModel);
+            var now = dateTimeProvider.GetDateTimeNow();
 
-                workday.UpdatedOn = now;
-                workday.UserId = userId;
+            workday.UpdatedOn = now;
+            workday.UserId = userId;
 
-                await workdayRepo.InsertOneAsync(workday);
-                return CreatedAtRoute("GetWorkdayById", new { id = workday.Id }, mapper.Map<WorkdayDetailModel>(workday));
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-            }
+            await workdayRepo.InsertOneAsync(workday);
+            return CreatedAtRoute("GetWorkdayById", new { id = workday.Id }, mapper.Map<WorkdayDetailModel>(workday));
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<WorkdayDetailModel>> UpdateWorkday(string id, WorkdayUpdateModel model)
         {
-            try
-            {
-                if (id != model.Id)
-                    return BadRequest("Id of workday in payload and Id in request doesn't match!");
+            if (id != model.Id)
+                return BadRequest("Id of workday in payload and Id in request doesn't match!");
 
-                var oldWorkday = await workdayRepo.FindByIdAsync(id);
-                if (oldWorkday == null)
-                    return NotFound($"Could not find workday with provided id={id}");
+            var oldWorkday = await workdayRepo.FindByIdAsync(id);
+            if (oldWorkday == null)
+                return NotFound($"Could not find workday with provided id={id}");
 
-                var workday = mapper.Map(model, oldWorkday);
-                workday.UpdatedOn = dateTimeProvider.GetDateTimeNow();
+            var workday = mapper.Map(model, oldWorkday);
+            workday.UpdatedOn = dateTimeProvider.GetDateTimeNow();
 
-                await workdayRepo.ReplaceOneAsync(workday);
-                return mapper.Map<WorkdayDetailModel>(workday);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-            }
+            await workdayRepo.ReplaceOneAsync(workday);
+            return mapper.Map<WorkdayDetailModel>(workday);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteWorkday(string id)
         {
-            try
-            {
-                var oldWorkday = await workdayRepo.FindByIdAsync(id);
-                if (oldWorkday == null)
-                    return NotFound($"Could not find workday with provided id={id}");
+            var oldWorkday = await workdayRepo.FindByIdAsync(id);
+            if (oldWorkday == null)
+                return NotFound($"Could not find workday with provided id={id}");
 
-                await workdayRepo.DeleteByIdAsync(id);
-                return Ok($"Workday with id={id} has been deleted!");
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-            }
+            await workdayRepo.DeleteByIdAsync(id);
+            return Ok($"Workday with id={id} has been deleted!");
         }
 
         [HttpPost("/attendance")]
         public async Task<ActionResult<WorkdayDetailModel>> CreateAttendance(AttendanceCreateModel attendanceModel)
         {
-            try
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            bool isManager = User.IsInRole(Policies.Admin) || User.IsInRole(Policies.Manager);
+            var getParentWorkday = await workdayRepo.FindOneAsync(workday =>
+                workday.Datestamp == attendanceModel.Timestamp.Date &&
+                workday.UserId == userId);
+            var attendance = mapper.Map<AttendanceCreateModel, Attendance>(attendanceModel);
+            var now = dateTimeProvider.GetDateTimeNow();
+
+            attendance.UpdatedOn = now;
+
+            if (getParentWorkday != null)
             {
-                string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                bool isManager = User.IsInRole(Policies.Admin) || User.IsInRole(Policies.Manager);
-                var getParentWorkday = await workdayRepo.FindOneAsync(workday =>
-                    workday.Datestamp == attendanceModel.Timestamp.Date &&
-                    workday.UserId == userId);
-                var attendance = mapper.Map<AttendanceCreateModel, Attendance>(attendanceModel);
-                var now = dateTimeProvider.GetDateTimeNow();
-
-                attendance.UpdatedOn = now;
-
-                if (getParentWorkday != null)
+                getParentWorkday.Attendances.Add(attendance);
+                await workdayRepo.ReplaceOneAsync(getParentWorkday);
+            }
+            else
+            {
+                Workday newWorkday = new Workday()
                 {
-                    getParentWorkday.Attendances.Add(attendance);
-                    await workdayRepo.ReplaceOneAsync(getParentWorkday);
-                }
-                else
-                {
-                    Workday newWorkday = new Workday()
+                    UpdatedOn = now,
+                    UserId = userId,
+                    Datestamp = attendance.Timestamp.Date,
+                    Verified = isManager,
+                    Attendances = new List<Attendance>()
                     {
-                        UpdatedOn = now,
-                        UserId = userId,
-                        Datestamp = attendance.Timestamp.Date,
-                        Verified = isManager,
-                        Attendances = new List<Attendance>()
-                        {
-                            attendance
-                        },
-                    };
-                    await workdayRepo.InsertOneAsync(newWorkday);
-                }
+                        attendance
+                    },
+                };
+                await workdayRepo.InsertOneAsync(newWorkday);
+            }
 
-                return CreatedAtRoute("GetWorkdayById", 
-                    new { id = getParentWorkday.Id }, 
-                    mapper.Map<WorkdayDetailModel>(getParentWorkday));
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-            }
+            return CreatedAtRoute("GetWorkdayById", 
+                new { id = getParentWorkday.Id }, 
+                mapper.Map<WorkdayDetailModel>(getParentWorkday));
         }
     }
 }
