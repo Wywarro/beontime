@@ -46,6 +46,11 @@ namespace BEonTime.Web
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
 
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = @"ClientApp/dist";
+            });
+
             services.AddCors(options =>
             {
                 options.AddPolicy("VueCorsPolicy", builder =>
