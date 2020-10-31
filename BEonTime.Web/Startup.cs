@@ -7,6 +7,10 @@ using BEonTime.Services.EmailSender;
 using BEonTime.Services.EnvironmentVariables;
 using BEonTime.Services.Repositories;
 using BEonTime.Web.Middlewares;
+using Hangfire;
+using Hangfire.Mongo;
+using Hangfire.Mongo.Migration.Strategies;
+using Hangfire.Mongo.Migration.Strategies.Backup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +19,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Driver;
 using Newtonsoft.Json;
 using Serilog;
 using System;
@@ -63,10 +68,8 @@ namespace BEonTime.Web
                 });
             });
 
-            ConventionRegistry.Register(
-                "Camel Case", 
-                new ConventionPack { new CamelCaseElementNameConvention() }, 
-                _ => true);
+            var camelCaseConvetionPack = new ConventionPack { new CamelCaseElementNameConvention() };
+            ConventionRegistry.Register("Camel Case", camelCaseConvetionPack, _ => true);
 
             services.Configure<MongoDBOptions>(options =>
             {
@@ -76,6 +79,29 @@ namespace BEonTime.Web
                 options.Database = mongoOptions.Database;
                 options.User = mongoOptions.User;
                 options.Role = mongoOptions.Role;
+            });
+
+            var mongoOptions = CreateMongoDBOptions(Configuration);
+            var mongoClient = new MongoClient(mongoOptions.ConnectionString);
+            services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseMongoStorage(mongoClient, mongoOptions.Database, new MongoStorageOptions
+                {
+                    MigrationOptions = new MongoMigrationOptions
+                    {
+                        MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                        BackupStrategy = new CollectionMongoBackupStrategy()
+                    },
+                    Prefix = "hangfire.mongo",
+                    CheckConnection = true
+                })
+            );
+
+            services.AddHangfireServer(serverOptions =>
+            {
+                serverOptions.ServerName = "Hangfire.Mongo beontime server";
             });
 
             services.Configure<EmailSenderMetadata>(metadata =>
@@ -90,6 +116,7 @@ namespace BEonTime.Web
                 metadata.SmtpServer = emailSender.SmtpServer;
                 metadata.Username = emailSender.Username;
             });
+
 
             services.AddAuthentication("oauth")
                 .AddJwtBearer("oauth", config =>
@@ -164,6 +191,9 @@ namespace BEonTime.Web
 
             app.UseMiddleware<ExceptionHandlerMiddleware>();
 
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
+
             app.UseHttpsRedirection();
             app.UseCookiePolicy();
 
@@ -187,7 +217,7 @@ namespace BEonTime.Web
             {
                 if (env.IsDevelopment())
                 {
-                    builder.UseProxyToSpaDevelopmentServer("http://localhost:8080");
+                    //builder.UseProxyToSpaDevelopmentServer("http://localhost:8080");
                 }
                 else
                 {
