@@ -13,7 +13,7 @@ import { defineComponent, computed } from "vue";
 import { findIconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 export default defineComponent({
-  name: `FontAwesomeIcon`,
+  name: "FontAwesomeIcon",
 
   props: {
     icon: {
@@ -22,7 +22,7 @@ export default defineComponent({
     },
     type: {
       type: String,
-      default: `fas`,
+      default: "fas",
       required: false,
     },
     class: String,

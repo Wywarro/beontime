@@ -1,16 +1,16 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+import store from "./store";
 
-import { FontAwesomeIcon } from "@/plugins/font-awesome"
+import { FontAwesomeIcon } from "@/plugins/font-awesome";
 
-import './assets/tailwind.css'
+import "./assets/tailwind.css";
 
 const app = createApp(App)
   .use(store)
-  .use(router)
+  .use(router);
 
-app.component('font-awesome-icon', FontAwesomeIcon)
+app.component("font-awesome-icon", FontAwesomeIcon);
 
-app.mount('#app')
+app.mount("#app");

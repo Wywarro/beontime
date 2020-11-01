@@ -14,7 +14,7 @@ module.exports = {
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    "quotes": [1, "backtick", { "avoidEscape": true }],
+    "quotes": [1, "double", { "avoidEscape": true }],
     "comma-dangle": ["error", {
       "arrays": "always",
       "objects": "always",
@@ -22,8 +22,8 @@ module.exports = {
       "exports": "never",
       "functions": "never"
     }],
-    "semi": ["error", "always"],
-    "vue/valid-template-root": ["error", "never"],
+    "semi": [1, "always"],
+    "vue/valid-template-root": "off",
   },
   overrides: [
     {
