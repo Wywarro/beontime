@@ -2,15 +2,15 @@
   <nav class="topbar-nav">
     <font-awesome-icon type="fas" icon="bars" />
     <router-link to="/">Login</router-link>
-    <router-link to="/about">Register</router-link>
+    <router-link to="/">Register</router-link>
   </nav>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: `Topbar`,
+  name: "Topbar",
 
 });
 </script>
