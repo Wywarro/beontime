@@ -1,6 +1,15 @@
 <template>
   <nav class="topbar-nav">
-    <font-awesome-icon type="fas" icon="bars" />
+    <button
+      class="hamburger hamburger--elastic hamburger-icon"
+      :class="{'is-active': drawerOpened }"
+      @click="toggleDrawer"
+      type="button"
+    >
+      <span class="hamburger-box">
+        <span class="hamburger-inner"></span>
+      </span>
+    </button>
     <router-link to="/">Login</router-link>
     <router-link to="/">Register</router-link>
   </nav>
@@ -11,7 +20,31 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "Topbar",
+  props: {
+    drawerOpened: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+  },
+  setup (props, context) {
+    const toggleDrawer = () => {
+      context.emit("update:drawerOpened", !props.drawerOpened);
+    };
 
+    return { toggleDrawer, };
+  },
+  emits: {
+    "update:drawerOpened": (drawerOpened: boolean) => {
+      console.log(drawerOpened);
+      if (typeof drawerOpened === "boolean") {
+        return true;
+      } else {
+        console.warn("Invalid drawerOpened payload!");
+        return false;
+      }
+    },
+  },
 });
 </script>
 
@@ -20,5 +53,29 @@ export default defineComponent({
   @apply flex fixed w-full items-center justify-between;
   @apply px-6 h-16 z-10 border-b;
   @apply border-gray-200 bg-white text-gray-700;
+}
+
+</style>
+
+<style lang="less" scoped>
+.hamburger-icon {
+  transform: scale(0.8);
+  vertical-align: middle;
+  padding-left: 0px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+  &:active {
+    outline: 0px;
+  }
+
+  &:focus {
+    outline: 0px;
+  }
+}
+
+.icon-test {
+  height: 16px;
 }
 </style>

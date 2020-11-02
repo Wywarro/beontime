@@ -6,6 +6,7 @@ import store from "./store";
 import { FontAwesomeIcon } from "@/plugins/font-awesome";
 
 import "./assets/tailwind.css";
+import "hamburgers/dist/hamburgers.css";
 
 const app = createApp(App)
   .use(store)

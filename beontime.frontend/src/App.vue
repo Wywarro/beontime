@@ -1,8 +1,7 @@
 <template>
-  <Topbar />
-  <NavigationDrawer :is-open="drawerOpened" />
-  <router-view/>
-  <font-awesome-icon type="fas" icon="bars" />
+  <Topbar v-model:drawer-opened="drawerOpened" />
+  <NavigationDrawer v-model:drawer-opened="drawerOpened" />
+  <!-- <router-view/> -->
 </template>
 
 <script lang="ts">
