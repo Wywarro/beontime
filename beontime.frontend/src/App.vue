@@ -16,7 +16,7 @@ export default defineComponent({
     NavigationDrawer,
   },
   data: () => ({
-    drawerOpened: false,
+    drawerOpened: true,
   }),
 });
 </script>

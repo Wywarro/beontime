@@ -2,12 +2,27 @@
   <aside
     class="transform navigation-drawer"
     :class="drawerOpened ? 'translate-x-0' : '-translate-x-full'">
-    <p>dobrze, ze jestes</p>
+    <ul class="navigation">
+      <template v-for="link in navigation" :key="link.name">
+        <router-link
+          class="navigation-item"
+          :to="{ name: link.name }"
+          v-slot="{ href, route, navigate, isActive, isExactActive }"
+        >
+          <li
+            :class="[isActive && 'router-link-active', isExactActive && 'router-link-exact-active']"
+          >
+            <a :href="href" @click="navigate">{{ route.name }}</a>
+          </li>
+        </router-link>
+      </template>
+    </ul>
   </aside>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
+import { NavigationItem } from "@/types/types";
 
 export default defineComponent({
   name: "NavigationDrawer",
@@ -18,15 +33,52 @@ export default defineComponent({
       default: false,
     },
   },
+  data: () => ({
+    navigation: [
+      { name: "Home", },
+      { name: "dajesz", },
+      { name: "no jasne", },
+    ] as NavigationItem[],
+  }),
 });
 </script>
 
 <style scoped lang="postcss">
-.navigation-drawer {
-  margin-top: 4rem;
 
-  @apply top-0 left-0 w-64;
-  @apply bg-red-700 fixed h-full overflow-auto;
-  @apply ease-in-out transition-all duration-300 z-30;
+</style>
+
+<style scoped lang="less">
+.navigation-drawer {
+  @apply mt-16;
+  @apply top-0;
+  @apply left-0;
+  @apply w-64;
+  @apply bg-teal-500;
+  @apply fixed;
+  @apply h-full;
+  @apply overflow-auto;
+  @apply ease-in-out;
+  @apply transition-all;
+  @apply duration-300;
+  @apply z-30;
+}
+
+.navigation {
+  @apply flex;
+  @apply flex-col;
+
+  &-item {
+    @apply p-3;
+    @apply mx-4;
+    @apply my-2;
+    @apply rounded-md;
+    @apply: text-white;
+    @apply bg-gray-600;
+    @apply bg-opacity-50;
+
+    &:first-child {
+      @apply mt-4;
+    }
+  }
 }
 </style>

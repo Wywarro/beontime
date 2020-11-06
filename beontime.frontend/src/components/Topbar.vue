@@ -10,8 +10,10 @@
         <span class="hamburger-inner"></span>
       </span>
     </button>
-    <router-link to="/">Login</router-link>
-    <router-link to="/">Register</router-link>
+    <div>
+      <router-link class="mr-6" to="/">Login</router-link>
+      <router-link to="/">Register</router-link>
+    </div>
   </nav>
 </template>
 
