@@ -10,12 +10,12 @@ const routes: Array<RouteRecordRaw> = [
     component: Home,
   },
   {
-    path: "/",
+    path: "/workdays",
     name: "work-calendar",
     component: WorkCalendar,
   },
   {
-    path: "/",
+    path: "/overtime-status",
     name: "overtime-status",
     component: OvertimeStatus,
   },

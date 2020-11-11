@@ -1,7 +1,13 @@
 <template>
   <Topbar v-model:drawer-opened="drawerOpened" />
   <NavigationDrawer v-model:drawer-opened="drawerOpened" />
-  <!-- <router-view/> -->
+  <main
+    class="transform transition-all duration-300"
+    :class="{ 'ml-64': drawerOpened }"
+  >
+    <p>pozdro z mostu</p>
+    <router-view/>
+  </main>
 </template>
 
 <script lang="ts">
@@ -24,5 +30,9 @@ export default defineComponent({
 <style lang="less">
 body {
   font-family: 'Lato', sans-serif;
+}
+
+main {
+  @apply p-4;
 }
 </style>

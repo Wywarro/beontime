@@ -7,7 +7,7 @@
         <router-link
           class="nav__item"
           :to="{ name: link.viewName }"
-          v-slot="{ href, navigate, isActive }"
+          v-slot="{ href, navigate, isActive, isExactActive }"
         >
           <li
             :class="[isActive && 'router-link-active', isExactActive && 'router-link-exact-active']"

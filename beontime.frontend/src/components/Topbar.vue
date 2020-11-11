@@ -38,7 +38,6 @@ export default defineComponent({
   },
   emits: {
     "update:drawerOpened": (drawerOpened: boolean) => {
-      console.log(drawerOpened);
       if (typeof drawerOpened === "boolean") {
         return true;
       } else {
@@ -52,7 +51,7 @@ export default defineComponent({
 
 <style scoped lang="postcss">
 .topbar-nav {
-  @apply flex fixed w-full items-center justify-between;
+  @apply flex w-full items-center justify-between;
   @apply px-6 h-16 z-10 border-b;
   @apply border-gray-200 bg-white text-gray-700;
 }
@@ -75,9 +74,5 @@ export default defineComponent({
   &:focus {
     outline: 0px;
   }
-}
-
-.icon-test {
-  height: 16px;
 }
 </style>
