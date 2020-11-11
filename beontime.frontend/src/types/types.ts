@@ -1,4 +1,5 @@
 export interface NavigationItem {
-  name: string;
+  title: string;
   icon: string;
+  viewName: string;
 }

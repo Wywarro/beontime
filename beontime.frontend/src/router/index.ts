@@ -6,17 +6,17 @@ import OvertimeStatus from "@/views/OvertimeStatus.vue";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    name: "Home",
+    name: "home",
     component: Home,
   },
   {
     path: "/",
-    name: "dajesz",
+    name: "work-calendar",
     component: WorkCalendar,
   },
   {
     path: "/",
-    name: "no jasne",
+    name: "overtime-status",
     component: OvertimeStatus,
   },
 ];
