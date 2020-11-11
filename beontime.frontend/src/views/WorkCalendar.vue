@@ -1,100 +1,118 @@
 <template>
-<div class="cd-schedule cd-schedule--loading margin-top-lg margin-bottom-lg js-cd-schedule">
-  <div class="cd-schedule__timeline">
-    <ul>
-      <li><span>09:00</span></li>
-      <li><span>09:30</span></li>
-      <!-- additional elements here -->
-    </ul>
-  </div> <!-- .cd-schedule__timeline -->
-
-  <div class="cd-schedule__events">
-    <ul>
-      <li class="cd-schedule__group">
-        <div class="cd-schedule__top-info"><span>Monday</span></div>
-
-        <ul>
-          <li class="cd-schedule__event">
-            <a data-start="09:30" data-end="10:30" data-content="event-abs-circuit" data-event="event-1" href="#0">
-              <em class="cd-schedule__name">Abs Circuit</em>
-            </a>
-          </li>
-
-          <!-- other events here -->
-        </ul>
-      </li>
-
-      <li class="cd-schedule__group">
-        <div class="cd-schedule__top-info"><span>Tuesday</span></div>
-
-        <ul>
-          <!-- events here -->
-        </ul>
-      </li>
-
-      <!-- additional li.cd-schedule__group here -->
-    </ul>
+<div class="cal-container">
+  <div class="cal-title">Hello!</div>
+  <div class="cal-days">
+    <div></div>
+    <div></div>
+    <div class="cal-day">{{ getMonday(new Date()) }}</div>
+    <div class="cal-day">Mon</div>
+    <div class="cal-day">Mon</div>
+    <div class="cal-day">Mon</div>
+    <div class="cal-day">Mon</div>
+    <div class="cal-day">Mon</div>
+    <div class="cal-day">Mon</div>
   </div>
-
-  <div class="cd-schedule-modal">
-    <header class="cd-schedule-modal__header">
-      <div class="cd-schedule-modal__content">
-        <span class="cd-schedule-modal__date"></span>
-        <h3 class="cd-schedule-modal__name"></h3>
-      </div>
-
-      <div class="cd-schedule-modal__header-bg"></div>
-    </header>
-
-    <div class="cd-schedule-modal__body">
-      <div class="cd-schedule-modal__event-info"></div>
-      <div class="cd-schedule-modal__body-bg"></div>
-    </div>
-
-    <a href="#0" class="cd-schedule-modal__close text-replace">Close</a>
+  <div class="cal-content">
+    <div
+      v-for="(hour, index) in hours"
+      :key="hour"
+      class="cal-time"
+      :style="{'grid-row': index + 1}"
+    >{{ hourTime(hour) }}</div>
   </div>
-</div> <!-- .cd-schedule -->
+  <div></div>
+</div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 export default defineComponent({
+  setup () {
+    const hours = ref([
+      ...Array(25).keys(),
+    ]);
 
+    const hourTime = (number: number) => {
+      if (number < 10) {
+        return `0${number}:00`;
+      }
+      return `${number}:00`;
+    };
+
+    const getMonday = (date: Date) => {
+      date = new Date(date);
+      const dayOfWeek = date.getDay();
+      const sundayAdjustment = dayOfWeek === 0 ? -6 : 1;
+      const diff = date.getDate() - dayOfWeek + sundayAdjustment; // adjust when day is sunday
+
+      const monday = new Date(date.setDate(diff));
+
+      const options = { weekday: "long", month: "long", day: "numeric", };
+      return monday.toLocaleDateString("pl-PL", options);
+    };
+
+    return { hours, hourTime, getMonday, };
+  },
 });
 </script>
 
 <style lang="less" scoped>
-.cd-schedule__group > ul {
-  position: relative;
-  padding: 0 var(--component-padding);
-  display: flex;
-  overflow-x: scroll;
-  -webkit-overflow-scrolling: touch;
-}
+@title-height: 3em;
+@days-height: 3em;
+@time-width: 3em;
+@time-height: 3em;
+@grid-color: #dadce0;
+@calendar-template: @time-width 10px repeat(7, 1fr);
+@current-time-color: #ea4335;
 
-.cd-schedule__event {
-  flex-shrink: 0; // force them to stay on one line
-  float: left; // flex fallback
-  height: 150px;
-  width: 70%;
-  max-width: 300px;
-}
+.cal {
+  &-container {
+    width: 100%;
+    display: grid;
+    grid-template-rows: @title-height @days-height auto;
+  }
 
-.cd-schedule-modal {
-  position: fixed;
-  z-index: 3;
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: 100%;
-  visibility: hidden;
-  transform: translateX(100%);
-  transition: transform .4s, visibility .4s;
-}
+  &-title {
+    background: #217346;
+    text-align: center;
+    display: grid;
+    place-content: center;
+    color: #fff;
+    top: 0;
+    z-index: 10;
+  }
 
-.cd-schedule-modal--open { // this class is added as soon as an event is selected
-  transform: translateX(0);
-  visibility: visible;
+  &-days {
+    background: #f3f2f1;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    grid-template-columns: @calendar-template;
+    top: @title-height;
+    z-index: 10;
+    border-bottom: 2px solid @grid-color;
+  }
+
+  &-day {
+    border-left: 1px solid @grid-color;
+  }
+
+  &-content {
+    display: grid;
+    grid-template-columns: @calendar-template;
+    grid-template-rows: repeat(24, @time-height);
+  }
+
+  &-time {
+    grid-column: 1;
+    text-align: right;
+    align-self: end;
+    font-size: 80%;
+    position: relative;
+    bottom: -1ex;
+    color: #70757a;
+    padding-right: 2px;
+  }
 }
 </style>

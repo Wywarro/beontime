@@ -49,16 +49,23 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="postcss">
+<style lang="less" scoped>
 .topbar-nav {
-  @apply flex w-full items-center justify-between;
-  @apply px-6 h-16 z-10 border-b;
-  @apply border-gray-200 bg-white text-gray-700;
+  display: flex;
+  position: fixed;
+
+  @apply w-full;
+  @apply items-center;
+  @apply justify-between;
+  @apply px-6;
+  @apply h-16;
+  @apply z-10;
+  @apply border-b;
+  @apply border-gray-200;
+  @apply bg-white;
+  @apply text-gray-700;
 }
 
-</style>
-
-<style lang="less" scoped>
 .hamburger-icon {
   transform: scale(0.8);
   vertical-align: middle;

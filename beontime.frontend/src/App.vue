@@ -1,11 +1,12 @@
 <template>
-  <Topbar v-model:drawer-opened="drawerOpened" />
+  <header>
+    <Topbar v-model:drawer-opened="drawerOpened" />
+  </header>
   <NavigationDrawer v-model:drawer-opened="drawerOpened" />
   <main
-    class="transform transition-all duration-300"
+    class="transform transition-all duration-300 pt-16 p-4"
     :class="{ 'ml-64': drawerOpened }"
   >
-    <p>pozdro z mostu</p>
     <router-view/>
   </main>
 </template>
@@ -30,9 +31,5 @@ export default defineComponent({
 <style lang="less">
 body {
   font-family: 'Lato', sans-serif;
-}
-
-main {
-  @apply p-4;
 }
 </style>
