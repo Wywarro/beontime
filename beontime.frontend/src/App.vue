@@ -22,5 +22,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-
+body {
+  font-family: 'Lato', sans-serif;
+}
 </style>

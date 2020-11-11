@@ -1,17 +1,18 @@
 <template>
   <aside
-    class="transform navigation-drawer"
+    class="transform nav-drawer"
     :class="drawerOpened ? 'translate-x-0' : '-translate-x-full'">
-    <ul class="navigation">
+    <ul class="nav">
       <template v-for="link in navigation" :key="link.name">
         <router-link
-          class="navigation-item"
+          class="nav__item"
           :to="{ name: link.name }"
           v-slot="{ href, route, navigate, isActive, isExactActive }"
         >
           <li
             :class="[isActive && 'router-link-active', isExactActive && 'router-link-exact-active']"
           >
+            <font-awesome-icon :icon="link.icon" class="nav__icon"/>
             <a :href="href" @click="navigate">{{ route.name }}</a>
           </li>
         </router-link>
@@ -35,20 +36,16 @@ export default defineComponent({
   },
   data: () => ({
     navigation: [
-      { name: "Home", },
-      { name: "dajesz", },
-      { name: "no jasne", },
+      { name: "Home", icon: "home", },
+      { name: "Work Calendar", icon: "calendar-day", },
+      { name: "Overtime status", icon: "receipt", },
     ] as NavigationItem[],
   }),
 });
 </script>
 
-<style scoped lang="postcss">
-
-</style>
-
 <style scoped lang="less">
-.navigation-drawer {
+.nav-drawer {
   @apply mt-16;
   @apply top-0;
   @apply left-0;
@@ -63,22 +60,33 @@ export default defineComponent({
   @apply z-30;
 }
 
-.navigation {
-  @apply flex;
-  @apply flex-col;
+.nav {
+  display: flex;
+  flex-direction: column;
 
-  &-item {
+  &__item {
     @apply p-3;
     @apply mx-4;
     @apply my-2;
     @apply rounded-md;
-    @apply: text-white;
-    @apply bg-gray-600;
-    @apply bg-opacity-50;
+    @apply text-white;
+    @apply transition-all;
+    @apply duration-300;
 
     &:first-child {
       @apply mt-4;
     }
+
+    &:hover {
+      @apply bg-gray-700;
+      @apply bg-opacity-50;
+    }
+  }
+
+  &__icon {
+    height: 1.5rem;
+    display: inline-block;
+    @apply pr-3;
   }
 }
 </style>
