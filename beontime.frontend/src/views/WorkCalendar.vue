@@ -17,10 +17,16 @@
       v-for="(hour, index) in hours"
       :key="hour"
       class="cal-time"
-      :style="{'grid-row': index + 1}"
+      :style="{ 'grid-row': index + 1 }"
     >{{ hourTime(hour) }}</div>
+    <div class="cal-filler-col"></div>
+    <div
+      class="cal-col"
+      v-for="day in days"
+      :key="`10${day}`"
+      :style="{ 'grid-column': day + 2 }"
+    ></div>
   </div>
-  <div></div>
 </div>
 </template>
 
@@ -31,6 +37,10 @@ export default defineComponent({
   setup () {
     const hours = ref([
       ...Array(25).keys(),
+    ]);
+
+    const days = ref([
+      ...Array(8).keys(),
     ]);
 
     const hourTime = (number: number) => {
@@ -52,7 +62,7 @@ export default defineComponent({
       return monday.toLocaleDateString("pl-PL", options);
     };
 
-    return { hours, hourTime, getMonday, };
+    return { hours, days, hourTime, getMonday, };
   },
 });
 </script>
@@ -113,6 +123,18 @@ export default defineComponent({
     bottom: -1ex;
     color: #70757a;
     padding-right: 2px;
+  }
+
+  &-col {
+    border-right: 1px solid @grid-color;
+    grid-row: 1 / span 24;
+    grid-column: span 1;
+  }
+
+  &-filler-col {
+    grid-row: 1 / -1;
+    grid-column: 2;
+    border-right: 1px solid @grid-color;
   }
 }
 </style>
