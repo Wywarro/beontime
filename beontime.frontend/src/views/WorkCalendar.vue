@@ -1,69 +1,73 @@
 <template>
-<div class="cal-container">
-  <div class="cal-title">Hello!</div>
-  <div class="cal-days">
-    <div></div>
-    <div></div>
-    <div class="cal-day">{{ getMonday(new Date()) }}</div>
-    <div class="cal-day">Mon</div>
-    <div class="cal-day">Mon</div>
-    <div class="cal-day">Mon</div>
-    <div class="cal-day">Mon</div>
-    <div class="cal-day">Mon</div>
-    <div class="cal-day">Mon</div>
-  </div>
-  <div class="cal-content">
-    <div
-      v-for="(hour, index) in hours"
-      :key="hour"
-      class="cal-time"
-      :style="{ 'grid-row': index + 1 }"
-    >{{ hourTime(hour) }}</div>
-    <div class="cal-filler-col"></div>
-    <div
-      class="cal-col"
-      v-for="day in days"
-      :key="`10${day}`"
-      :style="{ 'grid-column': day + 2 }"
-    ></div>
-  </div>
-</div>
+    <div class="cal__container">
+        <div class="cal__title">Hello!</div>
+        <div class="cal__days">
+            <div />
+            <div />
+            <div class="cal__day">{{ getMonday(new Date()) }}</div>
+            <div class="cal__day">Mon</div>
+            <div class="cal__day">Mon</div>
+            <div class="cal__day">Mon</div>
+            <div class="cal__day">Mon</div>
+            <div class="cal__day">Mon</div>
+            <div class="cal__day">Mon</div>
+        </div>
+        <div class="cal__content">
+            <div
+                v-for="(hour, index) in hours"
+                :key="hour"
+                class="cal__time"
+                :style="{ 'grid-row': index + 1 }"
+            >
+                {{ hourTime(hour) }}
+            </div>
+            <div class="cal__filler-col" />
+            <div
+                v-for="day in days"
+                :key="`10${day}`"
+                class="cal__col"
+                :style="{ 'grid-column': day + 2 }"
+            />
+            <div
+                v-for="(hour, index) in hours"
+                :key="`20${hour}`"
+                class="cal__row"
+                :style="{ 'grid-row': index + 1 }"
+            />
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({
-  setup () {
-    const hours = ref([
-      ...Array(25).keys(),
-    ]);
+    setup() {
+        const hours = ref([...Array(25).keys()]);
 
-    const days = ref([
-      ...Array(8).keys(),
-    ]);
+        const days = ref([...Array(8).keys()]);
 
-    const hourTime = (number: number) => {
-      if (number < 10) {
-        return `0${number}:00`;
-      }
-      return `${number}:00`;
-    };
+        const hourTime = (number: number) => {
+            if (number < 10) {
+                return `0${number}:00`;
+            }
+            return `${number}:00`;
+        };
 
-    const getMonday = (date: Date) => {
-      date = new Date(date);
-      const dayOfWeek = date.getDay();
-      const sundayAdjustment = dayOfWeek === 0 ? -6 : 1;
-      const diff = date.getDate() - dayOfWeek + sundayAdjustment; // adjust when day is sunday
+        const getMonday = (date: Date) => {
+            date = new Date(date);
+            const dayOfWeek = date.getDay();
+            const sundayAdjustment = dayOfWeek === 0 ? -6 : 1;
+            const diff = date.getDate() - dayOfWeek + sundayAdjustment; // adjust when day is sunday
 
-      const monday = new Date(date.setDate(diff));
+            const monday = new Date(date.setDate(diff));
 
-      const options = { weekday: "long", month: "long", day: "numeric", };
-      return monday.toLocaleDateString("pl-PL", options);
-    };
+            const options = { weekday: "long", month: "long", day: "numeric" };
+            return monday.toLocaleDateString("pl-PL", options);
+        };
 
-    return { hours, days, hourTime, getMonday, };
-  },
+        return { hours, days, hourTime, getMonday };
+    },
 });
 </script>
 
@@ -77,64 +81,69 @@ export default defineComponent({
 @current-time-color: #ea4335;
 
 .cal {
-  &-container {
-    width: 100%;
-    display: grid;
-    grid-template-rows: @title-height @days-height auto;
-  }
+    &__container {
+        width: 100%;
+        display: grid;
+        grid-template-rows: @title-height @days-height auto;
+    }
 
-  &-title {
-    background: #217346;
-    text-align: center;
-    display: grid;
-    place-content: center;
-    color: #fff;
-    top: 0;
-    z-index: 10;
-  }
+    &__title {
+        background: #217346;
+        text-align: center;
+        display: grid;
+        place-content: center;
+        color: #fff;
+        top: 0;
+        z-index: 10;
+    }
 
-  &-days {
-    background: #f3f2f1;
-    display: grid;
-    place-content: center;
-    text-align: center;
-    grid-template-columns: @calendar-template;
-    top: @title-height;
-    z-index: 10;
-    border-bottom: 2px solid @grid-color;
-  }
+    &__days {
+        background: #f3f2f1;
+        display: grid;
+        place-content: center;
+        text-align: center;
+        grid-template-columns: @calendar-template;
+        top: @title-height;
+        z-index: 10;
+        border-bottom: 2px solid @grid-color;
+    }
 
-  &-day {
-    border-left: 1px solid @grid-color;
-  }
+    &__day {
+        border-left: 1px solid @grid-color;
+    }
 
-  &-content {
-    display: grid;
-    grid-template-columns: @calendar-template;
-    grid-template-rows: repeat(24, @time-height);
-  }
+    &__content {
+        display: grid;
+        grid-template-columns: @calendar-template;
+        grid-template-rows: repeat(24, @time-height);
+    }
 
-  &-time {
-    grid-column: 1;
-    text-align: right;
-    align-self: end;
-    font-size: 80%;
-    position: relative;
-    bottom: -1ex;
-    color: #70757a;
-    padding-right: 2px;
-  }
+    &__time {
+        grid-column: 1;
+        text-align: right;
+        align-self: end;
+        font-size: 80%;
+        position: relative;
+        bottom: -1ex;
+        color: #70757a;
+        padding-right: 2px;
+    }
 
-  &-col {
-    border-right: 1px solid @grid-color;
-    grid-row: 1 / span 24;
-    grid-column: span 1;
-  }
+    &__col {
+        border-right: 1px solid @grid-color;
+        grid-row: 1 / span 24;
+        grid-column: span 1;
+    }
 
-  &-filler-col {
-    grid-row: 1 / -1;
-    grid-column: 2;
-    border-right: 1px solid @grid-color;
-  }
+    &__filler-col {
+        grid-row: 1 / -1;
+        grid-column: 2;
+        border-right: 1px solid @grid-color;
+    }
+
+    &__row {
+        grid-column: 2 / -1;
+        border-bottom: 1px solid @grid-color;
+    }
 }
 </style>
