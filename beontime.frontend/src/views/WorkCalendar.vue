@@ -41,6 +41,8 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 
+import { range } from "lodash";
+
 export default defineComponent({
     setup() {
         const hours = ref([...Array(25).keys()]);
