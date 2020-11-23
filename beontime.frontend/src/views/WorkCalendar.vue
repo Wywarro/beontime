@@ -1,16 +1,14 @@
 <template>
     <div class="cal__container">
-        <div class="cal__title">Hello!</div>
+        <div class="cal__title">{{ getMonthWithYear }}</div>
         <div class="cal__days">
             <div />
             <div />
-            <div class="cal__day">{{ getMonday(new Date()) }}</div>
-            <div class="cal__day">Mon</div>
-            <div class="cal__day">Mon</div>
-            <div class="cal__day">Mon</div>
-            <div class="cal__day">Mon</div>
-            <div class="cal__day">Mon</div>
-            <div class="cal__day">Mon</div>
+            <div
+                v-for="day in days"
+                :key="`30${day}`"
+                class="cal__day"
+            >{{ formatDate(getDayFromMonday(day)) }}</div>
         </div>
         <div class="cal__content">
             <div
@@ -26,7 +24,8 @@
                 v-for="day in days"
                 :key="`10${day}`"
                 class="cal__col"
-                :style="{ 'grid-column': day }"
+                :class="{ last: day == days.length - 1 }"
+                :style="{ 'grid-column': day + 3 }"
             />
             <div
                 v-for="(hour, index) in hours"
@@ -42,16 +41,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, Ref, computed } from "vue";
 
-import startOfWeek from "date-fns/start_of_week";
+import startOfWeek from "date-fns/startOfWeek";
+import addDays from "date-fns/addDays";
+import { pl } from "date-fns/locale";
+import { format } from "date-fns";
+
 import { range } from "lodash";
 
 export default defineComponent({
     setup() {
         const hours = ref(range(1, 24));
-
-        const days = ref(range(3, 10));
+        const days = ref(range(0, 7));
 
         const hourTime = (number: number) => {
             if (number < 10) {
@@ -60,19 +62,35 @@ export default defineComponent({
             return `${number}:00`;
         };
 
-        const getMonday = (date: Date) => {
-            date = new Date(date);
-            const dayOfWeek = date.getDay();
-            const sundayAdjustment = dayOfWeek === 0 ? -6 : 1;
-            const diff = date.getDate() - dayOfWeek + sundayAdjustment; // adjust when day is sunday
-
-            const monday = new Date(date.setDate(diff));
-
-            const options = { weekday: "long", month: "long", day: "numeric" };
-            return monday.toLocaleDateString("pl-PL", options);
+        const currentDate = ref(new Date()) as Ref<Date>;
+        const getDayFromMonday = (dayFromMonday: number) => {
+            const monday = startOfWeek(currentDate.value, { locale: pl });
+            return addDays(monday, dayFromMonday);
         };
 
-        return { hours, days, hourTime, getMonday };
+        const formatDate = (date: Date) => {
+            return format(date, "do. MMMM yyyy", {
+                locale: pl
+            });
+        };
+
+        const getMonthWithYear = computed(() => {
+            return format(currentDate.value, "LLLL yyyy", {
+                locale: pl,
+            });
+        });
+
+        return {
+            hours,
+            days,
+            hourTime,
+
+            currentDate,
+            getDayFromMonday,
+            formatDate,
+
+            getMonthWithYear
+        };
     },
 });
 </script>
@@ -91,11 +109,11 @@ export default defineComponent({
         width: 100%;
         display: grid;
         grid-template-rows: @title-height @days-height auto;
-        position: absolute;
+        border: 1px solid @grid-color;
     }
 
     &__title {
-        background: #217346;
+        @apply bg-teal-600;
         text-align: center;
         display: grid;
         place-content: center;
@@ -131,25 +149,29 @@ export default defineComponent({
         align-self: end;
         font-size: 80%;
         position: relative;
-        bottom: -1ex;
+        bottom: -0.5rem;
         color: #70757a;
         padding-right: 2px;
     }
 
     &__col {
         border-right: 1px solid @grid-color;
-        grid-row: 1 / span 24;
+        grid-row: ~"1 / span 24";
         grid-column: span 1;
+
+        &.last {
+            border-right: 0px;
+        }
     }
 
     &__filler-col {
-        grid-row: 1 / -1;
+        grid-row: ~"1 / -1";
         grid-column: 2;
         border-right: 1px solid @grid-color;
     }
 
     &__row {
-        grid-column: 2 / -1;
+        grid-column: ~"2 / -1";
         border-bottom: 1px solid @grid-color;
     }
 
