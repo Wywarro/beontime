@@ -4,8 +4,6 @@ import { fas } from "@fortawesome/free-solid-svg-icons";
 
 import FontAwesomeIcon from "@/libs/FontAwesomeIcon.vue";
 
-library.add(
-  fas
-);
+library.add(fas);
 
 export { FontAwesomeIcon };

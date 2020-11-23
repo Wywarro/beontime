@@ -1,24 +1,24 @@
 <template>
-  <aside
-    class="transform nav-drawer"
-    :class="drawerOpened ? 'translate-x-0' : '-translate-x-full'">
-    <ul class="nav">
-      <template v-for="link in navigation" :key="link.name">
-        <router-link
-          class="nav__item"
-          :to="{ name: link.viewName }"
-          v-slot="{ href, navigate, isActive, isExactActive }"
-        >
-          <li
-            :class="[isActive && 'router-link-active', isExactActive && 'router-link-exact-active']"
-          >
-            <font-awesome-icon :icon="link.icon" class="nav__icon"/>
-            <a :href="href" @click="navigate">{{ link.title }}</a>
-          </li>
-        </router-link>
-      </template>
-    </ul>
-  </aside>
+    <aside
+        class="transform nav-drawer"
+        :class="drawerOpened ? 'translate-x-0' : '-translate-x-full'">
+        <ul class="nav">
+            <router-link
+                v-for="link in navigation"
+                v-slot="{ href, navigate, isActive, isExactActive }"
+                :key="link.name"
+                class="nav__item"
+                :to="{ name: link.viewName }"
+            >
+                <li
+                    :class="[isActive && 'router-link-active', isExactActive && 'router-link-exact-active']"
+                >
+                    <font-awesome-icon :icon="link.icon" class="nav__icon"/>
+                    <a :href="href" @click="navigate">{{ link.title }}</a>
+                </li>
+            </router-link>
+        </ul>
+    </aside>
 </template>
 
 <script lang="ts">
@@ -26,21 +26,21 @@ import { defineComponent } from "vue";
 import { NavigationItem } from "@/types/types";
 
 export default defineComponent({
-  name: "NavigationDrawer",
-  props: {
-    drawerOpened: {
-      type: Boolean,
-      required: true,
-      default: false,
+    name: "NavigationDrawer",
+    props: {
+        drawerOpened: {
+            type: Boolean,
+            required: true,
+            default: false,
+        },
     },
-  },
-  data: () => ({
-    navigation: [
-      { title: "Home", icon: "home", viewName: "home", },
-      { title: "Work Calendar", icon: "calendar-day", viewName: "work-calendar", },
-      { title: "Overtime status", icon: "receipt", viewName: "overtime-status", },
-    ] as NavigationItem[],
-  }),
+    data: () => ({
+        navigation: [
+            { title: "Home", icon: "home", viewName: "home", },
+            { title: "Work Calendar", icon: "calendar-day", viewName: "work-calendar", },
+            { title: "Overtime status", icon: "receipt", viewName: "overtime-status", },
+        ] as NavigationItem[],
+    }),
 });
 </script>
 

@@ -14,10 +14,10 @@
         </div>
         <div class="cal__content">
             <div
-                v-for="(hour, index) in hours"
+                v-for="hour in hours"
                 :key="hour"
                 class="cal__time"
-                :style="{ 'grid-row': index + 1 }"
+                :style="{ 'grid-row': hour }"
             >
                 {{ hourTime(hour) }}
             </div>
@@ -26,7 +26,7 @@
                 v-for="day in days"
                 :key="`10${day}`"
                 class="cal__col"
-                :style="{ 'grid-column': day + 2 }"
+                :style="{ 'grid-column': day }"
             />
             <div
                 v-for="(hour, index) in hours"
@@ -34,6 +34,9 @@
                 class="cal__row"
                 :style="{ 'grid-row': index + 1 }"
             />
+            <div class="cal__current-time">
+                <div class="cal__circle" />
+            </div>
         </div>
     </div>
 </template>
@@ -41,13 +44,14 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 
+import startOfWeek from "date-fns/start_of_week";
 import { range } from "lodash";
 
 export default defineComponent({
     setup() {
-        const hours = ref([...Array(25).keys()]);
+        const hours = ref(range(1, 24));
 
-        const days = ref([...Array(8).keys()]);
+        const days = ref(range(3, 10));
 
         const hourTime = (number: number) => {
             if (number < 10) {
@@ -87,6 +91,7 @@ export default defineComponent({
         width: 100%;
         display: grid;
         grid-template-rows: @title-height @days-height auto;
+        position: absolute;
     }
 
     &__title {
@@ -146,6 +151,25 @@ export default defineComponent({
     &__row {
         grid-column: 2 / -1;
         border-bottom: 1px solid @grid-color;
+    }
+
+    &__current-time {
+        grid-column: 7;
+        grid-row: 10;
+        border-top: 2px solid @current-time-color;
+        position: relative;
+        top: calc(50% - 1px);
+    }
+
+    &__circle {
+        width: 12px;
+        height: 12px;
+        border: 1px solid @current-time-color;
+        border-radius: 50%;
+        background: @current-time-color;
+        position: relative;
+        top: -6px;
+        left: -6px;
     }
 }
 </style>

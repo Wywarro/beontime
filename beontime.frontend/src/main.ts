@@ -8,10 +8,8 @@ import { FontAwesomeIcon } from "@/plugins/font-awesome";
 import "./assets/tailwind.css";
 import "hamburgers/dist/hamburgers.css";
 
-const app = createApp(App)
-  .use(store)
-  .use(router);
+const app = createApp(App).use(store).use(router);
 
-app.component("font-awesome-icon", FontAwesomeIcon);
+app.component("FontAwesomeIcon", FontAwesomeIcon);
 
 app.mount("#app");
