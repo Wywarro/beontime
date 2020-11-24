@@ -26,17 +26,17 @@ const routes: Array<RouteRecordRaw> = [
         component: OvertimeStatus,
     },
     {
-        path: "accounts/login",
+        path: "/accounts/login",
         name: "login",
         component: Login,
     },
     {
-        path: "accounts/signup",
+        path: "/accounts/signup",
         name: "signup",
         component: Signup,
     },
     {
-        path: "*",
+        path: "/:pathMatch(.*)*",
         component: NotFound,
     },
 ];

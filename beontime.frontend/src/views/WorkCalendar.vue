@@ -53,6 +53,7 @@ import { range } from "lodash";
 
 export default defineComponent({
     name: "WorkCalendar",
+    inject: ["userService"],
     setup() {
         const hours = ref(range(1, 24));
         const days = ref(range(0, 7));

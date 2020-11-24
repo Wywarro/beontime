@@ -1,6 +1,6 @@
 <template>
     <div class="login__container">
-        <h3>Login</h3>
+        <h3 class="login__title">Login</h3>
 
         <form @submit.prevent="loginUser">
             <div class="login">
@@ -17,7 +17,7 @@
                     placeholder="password"
                 />
             </div>
-            <button type="submit">Login</button>
+            <button type="submit" class="login__button">Login</button>
         </form>
 
         <div
@@ -69,6 +69,41 @@ export default defineComponent({
 .login {
     &__container {
         display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-items: center;
+        min-height: 100vh;
+    }
+
+    &__title {
+        @apply from-red-800;
+    }
+
+    &__button {
+        @apply relative;
+        @apply w-full;
+        @apply flex;
+        @apply justify-center;
+        @apply py-2;
+        @apply px-4;
+        @apply border;
+        @apply border-transparent;
+        @apply text-sm;
+        @apply font-medium;
+        @apply rounded-md;
+        @apply text-white;
+        @apply bg-indigo-600;
+
+        &:hover {
+            @apply bg-indigo-700;
+        }
+
+        &:focus {
+            @apply outline-none;
+            @apply ring-2;
+            @apply ring-offset-2;
+            @apply ring-indigo-500;
+        }
     }
 }
 </style>

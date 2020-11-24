@@ -11,8 +11,8 @@
             </span>
         </button>
         <div>
-            <router-link class="mr-6" to="/">Login</router-link>
-            <router-link to="/">Register</router-link>
+            <router-link class="mr-6" :to="{ name: 'login' }">Login</router-link>
+            <router-link :to="{ name: 'signup' }">Sign up</router-link>
         </div>
     </nav>
 </template>

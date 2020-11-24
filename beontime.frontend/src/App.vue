@@ -14,9 +14,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref, onMounted } from "vue";
+
 import Topbar from "@/components/Topbar.vue";
 import NavigationDrawer from "@/components/NavigationDrawer.vue";
+
+import firebase from "firebase";
+import userService from "@/services/userService";
 
 export default defineComponent({
     name: "Home",
@@ -24,9 +28,19 @@ export default defineComponent({
         Topbar,
         NavigationDrawer,
     },
-    data: () => ({
-        drawerOpened: true,
-    }),
+    provide: {
+        userService
+    },
+    setup() {
+        onMounted(() => {
+            firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
+                userService.fetchUser(user);
+            });
+        });
+
+        const drawerOpened = ref(true);
+        return { drawerOpened };
+    }
 });
 </script>
 
