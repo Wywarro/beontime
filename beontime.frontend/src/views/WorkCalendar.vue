@@ -52,6 +52,7 @@ import { format, getHours, getDay, addDays, startOfWeek, getMinutes } from "date
 import { range } from "lodash";
 
 export default defineComponent({
+    name: "WorkCalendar",
     setup() {
         const hours = ref(range(1, 24));
         const days = ref(range(0, 7));
