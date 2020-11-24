@@ -100,9 +100,6 @@ export default defineComponent({
 
         &:focus {
             @apply outline-none;
-            @apply ring-2;
-            @apply ring-offset-2;
-            @apply ring-indigo-500;
         }
     }
 }
