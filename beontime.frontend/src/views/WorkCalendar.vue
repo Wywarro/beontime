@@ -1,6 +1,6 @@
 <template>
     <div class="cal__container">
-        <div class="cal__title">{{ getMonthWithYear }}</div>
+        <div class="cal__title">{{ getMonthWithYear }} {{ currentMinute }}</div>
         <div class="cal__days">
             <div />
             <div />
@@ -28,12 +28,15 @@
                 :style="{ 'grid-column': day + 3 }"
             />
             <div
-                v-for="(hour, index) in hours"
+                v-for="hour in hours"
                 :key="`20${hour}`"
                 class="cal__row"
-                :style="{ 'grid-row': index + 1 }"
+                :style="{ 'grid-row': hour }"
             />
-            <div class="cal__current-time">
+            <div
+                class="cal__current-time"
+                :style="{ 'grid-column': currentDayOnGrid, 'grid-row': currentHourOnGrid, 'top': currentMinute}"
+            >
                 <div class="cal__circle" />
             </div>
         </div>
@@ -41,12 +44,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref, computed } from "vue";
+import { defineComponent, ref, Ref, computed, onMounted } from "vue";
 
-import startOfWeek from "date-fns/startOfWeek";
-import addDays from "date-fns/addDays";
 import { pl } from "date-fns/locale";
-import { format } from "date-fns";
+import { format, getHours, getDay, addDays, startOfWeek, getMinutes } from "date-fns";
 
 import { range } from "lodash";
 
@@ -63,6 +64,12 @@ export default defineComponent({
         };
 
         const currentDate = ref(new Date()) as Ref<Date>;
+        onMounted(() => {
+            setInterval(() => {
+                currentDate.value = new Date();
+            }, 1000);
+        });
+
         const getDayFromMonday = (dayFromMonday: number) => {
             const monday = startOfWeek(currentDate.value, { locale: pl });
             return addDays(monday, dayFromMonday);
@@ -80,6 +87,21 @@ export default defineComponent({
             });
         });
 
+        const currentDayOnGrid = computed(() => {
+            const gridAdjustment = 2;
+            return getDay(currentDate.value) + gridAdjustment;
+        });
+
+        const currentHourOnGrid = computed(() => {
+            const gridAdjustment = 1;
+            return getHours(currentDate.value) + gridAdjustment;
+        });
+
+        const currentMinute = computed(() => {
+            const oneHourInMinutes = 60;
+            return `${getMinutes(currentDate.value) / oneHourInMinutes}%`;
+        });
+
         return {
             hours,
             days,
@@ -89,7 +111,11 @@ export default defineComponent({
             getDayFromMonday,
             formatDate,
 
-            getMonthWithYear
+            getMonthWithYear,
+
+            currentDayOnGrid,
+            currentHourOnGrid,
+            currentMinute
         };
     },
 });
@@ -176,11 +202,8 @@ export default defineComponent({
     }
 
     &__current-time {
-        grid-column: 7;
-        grid-row: 10;
         border-top: 2px solid @current-time-color;
         position: relative;
-        top: calc(50% - 1px);
     }
 
     &__circle {
