@@ -1,6 +1,6 @@
 <template>
     <div class="cal__container">
-        <div class="cal__title">{{ getMonthWithYear }} {{ currentMinute }}</div>
+        <div class="cal__title">{{ getMonthWithYear }} {{ userService.user }}</div>
         <div class="cal__days">
             <div />
             <div />
