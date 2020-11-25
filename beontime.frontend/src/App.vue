@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, provide } from "vue";
 
 import Topbar from "@/components/Topbar.vue";
 import NavigationDrawer from "@/components/NavigationDrawer.vue";
@@ -25,13 +25,10 @@ import "firebase/auth";
 import userService from "@/services/userService";
 
 export default defineComponent({
-    name: "Home",
+    name: "App",
     components: {
         Topbar,
         NavigationDrawer,
-    },
-    provide: {
-        userService
     },
     setup() {
         onMounted(() => {
@@ -39,6 +36,8 @@ export default defineComponent({
                 userService.fetchUser(user);
             });
         });
+
+        provide("userService", userService);
 
         const drawerOpened = ref(true);
         return { drawerOpened };

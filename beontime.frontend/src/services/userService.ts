@@ -2,14 +2,23 @@ import { reactive, readonly } from "vue";
 
 import firebase from "firebase/app";
 
-interface User {
+import { Locale } from "date-fns";
+import { pl } from "date-fns/locale";
+
+export interface User {
     loggedIn: boolean,
-    data: firebase.User | null
+    data: firebase.User | null,
+    preferences: {
+        locale: Locale;
+    }
 }
 
 const user = reactive<User>({
     loggedIn: false,
     data: null,
+    preferences: {
+        locale: pl
+    }
 });
 
 const setLoggedIn = (value: boolean) => {
@@ -32,4 +41,9 @@ const fetchUser = (user: firebase.User | null): void => {
     }
 };
 
-export default { user: readonly(user), fetchUser };
+export interface userService {
+    user: User,
+    fetchUser: (user: firebase.User | null) => void,
+}
+
+export default { user: readonly(user), fetchUser } as userService;

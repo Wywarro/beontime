@@ -46,31 +46,33 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref, computed, onMounted } from "vue";
+import { defineComponent, ref, Ref, computed, onMounted, inject } from "vue";
 
-import { pl } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import {
     getHours,
     getDay,
     getMinutes,
     getMonth,
 
-    format,
     addDays,
+    addSeconds,
+
     startOfWeek,
+    format,
     Locale
 } from "date-fns";
 
 import { range } from "lodash";
 
 import CalendarNavigator from "@/components/CalendarNavigator.vue";
+import { userService } from "@/services/userService";
 
 export default defineComponent({
     name: "WorkCalendar",
     components: {
         CalendarNavigator
     },
-    inject: ["userService"],
     setup() {
         const dayFormatTokens = "do. MMMM yyyy";
         const monthFormatTokens = "LLLL yyyy";
@@ -88,11 +90,13 @@ export default defineComponent({
         const currentDate = ref(new Date()) as Ref<Date>;
         onMounted(() => {
             setInterval(() => {
-                currentDate.value = new Date();
+                currentDate.value = addSeconds(currentDate.value, 1);
             }, 1000);
         });
 
-        const locale: Locale = pl;
+        const userService = inject<userService>("userService");
+        const locale: Locale = userService?.user?.preferences?.locale ?? enUS;
+
         const getDayFromMonday = (dayFromMonday: number) => {
             const monday = startOfWeek(currentDate.value, { locale });
             return addDays(monday, dayFromMonday);
@@ -136,7 +140,9 @@ export default defineComponent({
             currentDayOnGrid,
             currentMonth,
             currentHourOnGrid,
-            currentMinute
+            currentMinute,
+
+            userService
         };
     },
 });
