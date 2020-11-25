@@ -1,6 +1,6 @@
 import { reactive, readonly } from "vue";
 
-import firebase from "firebase";
+import firebase from "firebase/app";
 
 interface User {
     loggedIn: boolean,

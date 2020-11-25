@@ -36,7 +36,7 @@
 import { defineComponent, ref } from "vue";
 import { useRouter } from "vue-router";
 
-import firebase from "firebase";
+import firebase from "firebase/app";
 
 export default defineComponent({
     name: "Login",

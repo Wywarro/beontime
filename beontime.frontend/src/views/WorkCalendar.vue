@@ -1,45 +1,47 @@
 <template>
-    <div class="cal__container">
-        <div class="cal__title">{{ getMonthWithYear }} {{ userService.user }}</div>
-        <div class="cal__days">
-            <div />
-            <div />
-            <div
-                v-for="day in days"
-                :key="`30${day}`"
-                class="cal__day"
-            >{{ formatDate(getDayFromMonday(day)) }}</div>
-        </div>
-        <div class="cal__content">
-            <div
-                v-for="hour in hours"
-                :key="hour"
-                class="cal__time"
-                :style="{ 'grid-row': hour }"
-            >
-                {{ hourTime(hour) }}
+    <div>
+        <div class="cal__container">
+            <div class="cal__title">{{ formatDate(currentDate, monthFormatTokens) }} {{ userService.user }}</div>
+            <div class="cal__days">
+                <div />
+                <div />
+                <div
+                    v-for="day in days"
+                    :key="`30${day}`"
+                    class="cal__day"
+                >{{ formatDate(getDayFromMonday(day), dayFormatTokens) }}</div>
             </div>
-            <div class="cal__filler-col" />
-            <div
-                v-for="day in days"
-                :key="`10${day}`"
-                class="cal__col"
-                :class="{ last: day == days.length - 1 }"
-                :style="{ 'grid-column': day + 3 }"
-            />
-            <div
-                v-for="hour in hours"
-                :key="`20${hour}`"
-                class="cal__row"
-                :style="{ 'grid-row': hour }"
-            />
-            <div
-                class="cal__current-time"
-                :style="{ 'grid-column': currentDayOnGrid, 'grid-row': currentHourOnGrid, 'top': currentMinute}"
-            >
-                <div class="cal__circle" />
+            <div class="cal__content">
+                <div
+                    v-for="hour in hours"
+                    :key="hour"
+                    class="cal__time"
+                    :style="{ 'grid-row': hour }"
+                >
+                    {{ hourTime(hour) }}
+                </div>
+                <div class="cal__filler-col" />
+                <div
+                    v-for="day in days"
+                    :key="`10${day}`"
+                    class="cal__col"
+                    :style="{ 'grid-column': day + 3 }"
+                />
+                <div
+                    v-for="hour in hours"
+                    :key="`20${hour}`"
+                    class="cal__row"
+                    :style="{ 'grid-row': hour }"
+                />
+                <div
+                    class="cal__current-time"
+                    :style="{ 'grid-column': currentDayOnGrid, 'grid-row': currentHourOnGrid, 'top': currentMinute}"
+                >
+                    <div class="cal__circle" />
+                </div>
             </div>
         </div>
+        <CalendarNavigator class="cal__navigator" :month="currentMonth" />
     </div>
 </template>
 
@@ -47,14 +49,32 @@
 import { defineComponent, ref, Ref, computed, onMounted } from "vue";
 
 import { pl } from "date-fns/locale";
-import { format, getHours, getDay, addDays, startOfWeek, getMinutes } from "date-fns";
+import {
+    getHours,
+    getDay,
+    getMinutes,
+    getMonth,
+
+    format,
+    addDays,
+    startOfWeek,
+    Locale
+} from "date-fns";
 
 import { range } from "lodash";
 
+import CalendarNavigator from "@/components/CalendarNavigator.vue";
+
 export default defineComponent({
     name: "WorkCalendar",
+    components: {
+        CalendarNavigator
+    },
     inject: ["userService"],
     setup() {
+        const dayFormatTokens = "do. MMMM yyyy";
+        const monthFormatTokens = "LLLL yyyy";
+
         const hours = ref(range(1, 24));
         const days = ref(range(0, 7));
 
@@ -72,26 +92,23 @@ export default defineComponent({
             }, 1000);
         });
 
+        const locale: Locale = pl;
         const getDayFromMonday = (dayFromMonday: number) => {
-            const monday = startOfWeek(currentDate.value, { locale: pl });
+            const monday = startOfWeek(currentDate.value, { locale });
             return addDays(monday, dayFromMonday);
         };
 
-        const formatDate = (date: Date) => {
-            return format(date, "do. MMMM yyyy", {
-                locale: pl
-            });
+        const formatDate = (date: Date, formatTokens: string) => {
+            return format(date, formatTokens, { locale });
         };
-
-        const getMonthWithYear = computed(() => {
-            return format(currentDate.value, "LLLL yyyy", {
-                locale: pl,
-            });
-        });
 
         const currentDayOnGrid = computed(() => {
             const gridAdjustment = 2;
             return getDay(currentDate.value) + gridAdjustment;
+        });
+
+        const currentMonth = computed(() => {
+            return getMonth(currentDate.value);
         });
 
         const currentHourOnGrid = computed(() => {
@@ -101,10 +118,13 @@ export default defineComponent({
 
         const currentMinute = computed(() => {
             const oneHourInMinutes = 60;
-            return `${getMinutes(currentDate.value) / oneHourInMinutes}%`;
+            return `${(getMinutes(currentDate.value) / oneHourInMinutes) * 100}%`;
         });
 
         return {
+            dayFormatTokens,
+            monthFormatTokens,
+
             hours,
             days,
             hourTime,
@@ -113,9 +133,8 @@ export default defineComponent({
             getDayFromMonday,
             formatDate,
 
-            getMonthWithYear,
-
             currentDayOnGrid,
+            currentMonth,
             currentHourOnGrid,
             currentMinute
         };
@@ -137,7 +156,6 @@ export default defineComponent({
         width: 100%;
         display: grid;
         grid-template-rows: @title-height @days-height auto;
-        border: 1px solid @grid-color;
     }
 
     &__title {
@@ -186,10 +204,6 @@ export default defineComponent({
         border-right: 1px solid @grid-color;
         grid-row: ~"1 / span 24";
         grid-column: span 1;
-
-        &.last {
-            border-right: 0px;
-        }
     }
 
     &__filler-col {
@@ -217,6 +231,13 @@ export default defineComponent({
         position: relative;
         top: -6px;
         left: -6px;
+    }
+
+    &__navigator {
+        position: fixed;
+        top: 500px;
+        bottom: 33px;
+        right: 20px;
     }
 }
 </style>

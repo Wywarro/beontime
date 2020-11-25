@@ -19,7 +19,9 @@ import { defineComponent, ref, onMounted } from "vue";
 import Topbar from "@/components/Topbar.vue";
 import NavigationDrawer from "@/components/NavigationDrawer.vue";
 
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/auth";
+
 import userService from "@/services/userService";
 
 export default defineComponent({
