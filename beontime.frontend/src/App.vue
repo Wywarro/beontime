@@ -23,6 +23,7 @@ import firebase from "firebase/app";
 import "firebase/auth";
 
 import userService from "@/services/userService";
+import dateService from "@/services/dateService";
 
 export default defineComponent({
     name: "App",
@@ -38,6 +39,7 @@ export default defineComponent({
         });
 
         provide("userService", userService);
+        provide("dateService", dateService);
 
         const drawerOpened = ref(true);
         return { drawerOpened };

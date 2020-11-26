@@ -1,7 +1,23 @@
 <template>
     <div>
         <div class="cal__container">
-            <div class="cal__title">{{ formatDate(currentDate, monthFormatTokens) }} {{ userService.user }}</div>
+            <div class="cal__header">
+                <font-awesome-icon
+                    icon="chevron-circle-left"
+                    data-cy="substractWeekButton"
+                    class="cal__nav-icon"
+                    @click="subtractOneWeek"
+                />
+
+                <div class="cal__title">{{ formatDate(currentDate, monthFormatTokens) }}</div>
+
+                <font-awesome-icon
+                    icon="chevron-circle-right"
+                    data-cy="addWeekButton"
+                    class="cal__nav-icon"
+                    @click="addOneWeek"
+                />
+            </div>
             <div class="cal__days">
                 <div />
                 <div />
@@ -56,6 +72,7 @@ import {
     getMonth,
 
     addDays,
+    addWeeks,
     addSeconds,
 
     startOfWeek,
@@ -66,7 +83,8 @@ import {
 import { range } from "lodash";
 
 import CalendarNavigator from "@/components/CalendarNavigator.vue";
-import { userService } from "@/services/userService";
+import { UserService } from "@/services/userService";
+import { DateService } from "@/services/dateService";
 
 export default defineComponent({
     name: "WorkCalendar",
@@ -75,7 +93,7 @@ export default defineComponent({
     },
     setup() {
         const dayFormatTokens = "do. MMMM yyyy";
-        const monthFormatTokens = "LLLL yyyy";
+        const monthFormatTokens = "wo. 'tydzień' MMMM yyyy";
 
         const hours = ref(range(1, 24));
         const days = ref(range(0, 7));
@@ -87,14 +105,24 @@ export default defineComponent({
             return `${number}:00`;
         };
 
-        const currentDate = ref(new Date()) as Ref<Date>;
+        const dateService = inject<DateService>("dateService") ?? { getNow: () => new Date() };
+        const currentDate = ref(dateService.getNow()) as Ref<Date>;
+
         onMounted(() => {
             setInterval(() => {
+                console.log({ currentDate: currentDate.value });
                 currentDate.value = addSeconds(currentDate.value, 1);
             }, 1000);
         });
 
-        const userService = inject<userService>("userService");
+        const addOneWeek = () => {
+            currentDate.value = addWeeks(currentDate.value, 1);
+        };
+        const subtractOneWeek = () => {
+            currentDate.value = addWeeks(currentDate.value, -1);
+        };
+
+        const userService = inject<UserService>("userService");
         const locale: Locale = userService?.user?.preferences?.locale ?? enUS;
 
         const getDayFromMonday = (dayFromMonday: number) => {
@@ -122,7 +150,9 @@ export default defineComponent({
 
         const currentMinute = computed(() => {
             const oneHourInMinutes = 60;
-            return `${(getMinutes(currentDate.value) / oneHourInMinutes) * 100}%`;
+            const minutesPercentage = getMinutes(currentDate.value) / oneHourInMinutes * 100;
+
+            return `${Math.round(minutesPercentage)}%`;
         });
 
         return {
@@ -134,6 +164,10 @@ export default defineComponent({
             hourTime,
 
             currentDate,
+
+            addOneWeek,
+            subtractOneWeek,
+
             getDayFromMonday,
             formatDate,
 
@@ -164,14 +198,24 @@ export default defineComponent({
         grid-template-rows: @title-height @days-height auto;
     }
 
-    &__title {
+    &__header {
         @apply bg-teal-600;
         text-align: center;
-        display: grid;
-        place-content: center;
-        color: #fff;
-        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         z-index: 10;
+
+        position: sticky;
+        top: 4rem;
+    }
+
+    &__title {
+        color: #fff;
+    }
+
+    &__nav-icon {
+        color: #fff;
     }
 
     &__days {
@@ -180,9 +224,11 @@ export default defineComponent({
         place-content: center;
         text-align: center;
         grid-template-columns: @calendar-template;
-        top: @title-height;
         z-index: 10;
         border-bottom: 2px solid @grid-color;
+
+        position: sticky;
+        top: calc(4rem + @title-height);
     }
 
     &__day {
@@ -244,6 +290,13 @@ export default defineComponent({
         top: 500px;
         bottom: 33px;
         right: 20px;
+    }
+
+    &__nav-icon {
+        @apply h-6;
+        @apply w-1/4;
+        @apply pr-5;
+        display: inline-block;
     }
 }
 </style>

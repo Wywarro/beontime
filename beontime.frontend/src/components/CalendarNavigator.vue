@@ -1,7 +1,8 @@
 <template>
     <div class="calendar-navigator__container">
         <div class="calendar-navigator__title">{{ month }}</div>
-        <div class="calendar-navigator__days"></div>
+        <div class="calendar-navigator__days">
+        </div>
     </div>
 </template>
 

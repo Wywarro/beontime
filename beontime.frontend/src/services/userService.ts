@@ -13,6 +13,11 @@ export interface User {
     }
 }
 
+export interface UserService {
+    user: User,
+    fetchUser: (user: firebase.User | null) => void,
+}
+
 const user = reactive<User>({
     loggedIn: false,
     data: null,
@@ -41,9 +46,4 @@ const fetchUser = (user: firebase.User | null): void => {
     }
 };
 
-export interface userService {
-    user: User,
-    fetchUser: (user: firebase.User | null) => void,
-}
-
-export default { user: readonly(user), fetchUser } as userService;
+export default { user: readonly(user), fetchUser } as UserService;
