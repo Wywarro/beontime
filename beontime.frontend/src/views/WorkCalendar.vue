@@ -9,7 +9,13 @@
                     @click="subtractOneWeek"
                 />
 
-                <div class="cal__title">{{ formatDate(pickedDate, monthFormatTokens).toUpperCase() }}</div>
+                <div class="cal__title">{{ showMonth[0].toUpperCase() + showMonth.slice(1) }}</div>
+
+                <BeButton
+                    class="cal__today"
+                    data-cy="todayButton"
+                    @click="setToday"
+                >Today</BeButton>
 
                 <font-awesome-icon
                     icon="chevron-circle-right"
@@ -18,7 +24,6 @@
                     @click="addOneWeek"
                 />
 
-                <BeButton data-cy="todayButton" @click="setToday">Today</BeButton>
             </div>
             <div class="cal__days">
                 <div />
@@ -147,6 +152,10 @@ export default defineComponent({
             return format(date, formatTokens, { locale });
         };
 
+        const showMonth = computed(() => {
+            return formatDate(pickedDate.value, monthFormatTokens);
+        });
+
         const currentDayOnGrid = computed(() => {
             const gridAdjustment = 2;
             return getDay(pickedDate.value) + gridAdjustment;
@@ -186,6 +195,7 @@ export default defineComponent({
             getDayFromMonday,
             formatDate,
 
+            showMonth,
             currentDayOnGrid,
             currentMonth,
             currentHourOnGrid,
@@ -225,14 +235,22 @@ export default defineComponent({
 
     &__title {
         color: #fff;
+        width: 20%;
+        @apply text-white;
+    }
+
+    &__today {
+        width: 10%;
     }
 
     &__nav-icon {
-        color: #fff;
+        @apply h-6;
+        @apply text-white;
+        width: 25%;
     }
 
     &__days {
-        background: #f3f2f1;
+        @apply bg-gray-200;
         display: grid;
         place-content: center;
         text-align: center;
@@ -294,8 +312,8 @@ export default defineComponent({
         border-radius: 50%;
         background: @current-time-color;
         position: relative;
-        top: -6px;
-        left: -6px;
+        top: -7px;
+        left: -7px;
     }
 
     &__navigator {
@@ -303,11 +321,6 @@ export default defineComponent({
         top: 500px;
         bottom: 33px;
         right: 20px;
-    }
-
-    &__nav-icon {
-        @apply h-6;
-        width: 25%;
     }
 }
 </style>
