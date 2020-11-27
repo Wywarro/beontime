@@ -9,7 +9,7 @@
                     @click="subtractOneWeek"
                 />
 
-                <div class="cal__title">{{ formatDate(currentDate, monthFormatTokens) }}</div>
+                <div class="cal__title">{{ formatDate(pickedDate, monthFormatTokens).toUpperCase() }}</div>
 
                 <font-awesome-icon
                     icon="chevron-circle-right"
@@ -17,6 +17,8 @@
                     class="cal__nav-icon"
                     @click="addOneWeek"
                 />
+
+                <BeButton data-cy="todayButton" @click="setToday">Today</BeButton>
             </div>
             <div class="cal__days">
                 <div />
@@ -50,6 +52,7 @@
                     :style="{ 'grid-row': hour }"
                 />
                 <div
+                    v-if="isCurrentWeek"
                     class="cal__current-time"
                     :style="{ 'grid-column': currentDayOnGrid, 'grid-row': currentHourOnGrid, 'top': currentMinute}"
                 >
@@ -93,7 +96,7 @@ export default defineComponent({
     },
     setup() {
         const dayFormatTokens = "do. MMMM yyyy";
-        const monthFormatTokens = "wo. 'tydzień' MMMM yyyy";
+        const monthFormatTokens = "LLLL wo. 'tydzień' yyyy";
 
         const hours = ref(range(1, 24));
         const days = ref(range(0, 7));
@@ -106,27 +109,37 @@ export default defineComponent({
         };
 
         const dateService = inject<DateService>("dateService") ?? { getNow: () => new Date() };
-        const currentDate = ref(dateService.getNow()) as Ref<Date>;
+        const pickedDate = ref(dateService.getNow()) as Ref<Date>;
+
+        const isCurrentWeek = computed(() => {
+            const pickedDateMonday = startOfWeek(pickedDate.value, { locale });
+            const currentMonday = startOfWeek(dateService.getNow(), { locale });
+
+            return pickedDateMonday.getTime() === currentMonday.getTime();
+        });
+
+        const setToday = () => {
+            pickedDate.value = dateService.getNow();
+        };
 
         onMounted(() => {
             setInterval(() => {
-                console.log({ currentDate: currentDate.value });
-                currentDate.value = addSeconds(currentDate.value, 1);
+                pickedDate.value = addSeconds(pickedDate.value, 1);
             }, 1000);
         });
 
         const addOneWeek = () => {
-            currentDate.value = addWeeks(currentDate.value, 1);
+            pickedDate.value = addWeeks(pickedDate.value, 1);
         };
         const subtractOneWeek = () => {
-            currentDate.value = addWeeks(currentDate.value, -1);
+            pickedDate.value = addWeeks(pickedDate.value, -1);
         };
 
         const userService = inject<UserService>("userService");
         const locale: Locale = userService?.user?.preferences?.locale ?? enUS;
 
         const getDayFromMonday = (dayFromMonday: number) => {
-            const monday = startOfWeek(currentDate.value, { locale });
+            const monday = startOfWeek(pickedDate.value, { locale });
             return addDays(monday, dayFromMonday);
         };
 
@@ -136,21 +149,21 @@ export default defineComponent({
 
         const currentDayOnGrid = computed(() => {
             const gridAdjustment = 2;
-            return getDay(currentDate.value) + gridAdjustment;
+            return getDay(pickedDate.value) + gridAdjustment;
         });
 
         const currentMonth = computed(() => {
-            return getMonth(currentDate.value);
+            return getMonth(pickedDate.value);
         });
 
         const currentHourOnGrid = computed(() => {
             const gridAdjustment = 1;
-            return getHours(currentDate.value) + gridAdjustment;
+            return getHours(pickedDate.value) + gridAdjustment;
         });
 
         const currentMinute = computed(() => {
             const oneHourInMinutes = 60;
-            const minutesPercentage = getMinutes(currentDate.value) / oneHourInMinutes * 100;
+            const minutesPercentage = getMinutes(pickedDate.value) / oneHourInMinutes * 100;
 
             return `${Math.round(minutesPercentage)}%`;
         });
@@ -163,8 +176,10 @@ export default defineComponent({
             days,
             hourTime,
 
-            currentDate,
+            pickedDate,
+            isCurrentWeek,
 
+            setToday,
             addOneWeek,
             subtractOneWeek,
 
@@ -175,8 +190,6 @@ export default defineComponent({
             currentMonth,
             currentHourOnGrid,
             currentMinute,
-
-            userService
         };
     },
 });
@@ -294,9 +307,7 @@ export default defineComponent({
 
     &__nav-icon {
         @apply h-6;
-        @apply w-1/4;
-        @apply pr-5;
-        display: inline-block;
+        width: 25%;
     }
 }
 </style>

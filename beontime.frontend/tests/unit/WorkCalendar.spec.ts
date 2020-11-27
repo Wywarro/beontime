@@ -100,12 +100,6 @@ describe("WorkCalendar.vue", () => {
             expect(currentTimeIndicator.exists()).toBeTruthy();
         });
 
-        it("renders current time indicator if current week", () => {
-            const currentTimeIndicator = wrapper.find(".cal__current-time");
-            const indicatorStyles = currentTimeIndicator.attributes().style;
-            expect(indicatorStyles).toBe("grid-column: 5; grid-row: 23; top: 8%;");
-        });
-
         it("does not render current time indicator if user substracted one week", async() => {
             const addWeekButton = wrapper.find("[data-cy=addWeekButton]");
             await addWeekButton.trigger("click");
@@ -113,9 +107,65 @@ describe("WorkCalendar.vue", () => {
             const currentTimeIndicator = wrapper.find(".cal__current-time");
             expect(currentTimeIndicator.exists()).toBeFalsy();
         });
+
+        it("renders current-time indicator when user clicks on todays button", async() => {
+            const substractWeekButton = wrapper.find("[data-cy=substractWeekButton]");
+            await substractWeekButton.trigger("click");
+            await substractWeekButton.trigger("click");
+            await substractWeekButton.trigger("click");
+            await substractWeekButton.trigger("click");
+
+            const allDayColumns = wrapper.findAll(".cal__day");
+            allDayColumns.map((dayCol, index) => {
+                expect(dayCol.text()).toContain(`${index + 14}. września 2020`);
+            });
+
+            const todayButton = wrapper.find("[data-cy=todayButton]");
+            await todayButton.trigger("click");
+
+            const currentTimeIndicator = wrapper.find(".cal__current-time");
+            expect(currentTimeIndicator.exists()).toBeTruthy();
+        });
+
+        it("renders 12. października till 18. października when user clicks on todays button", async() => {
+            const substractWeekButton = wrapper.find("[data-cy=substractWeekButton]");
+            await substractWeekButton.trigger("click");
+            await substractWeekButton.trigger("click");
+            await substractWeekButton.trigger("click");
+            await substractWeekButton.trigger("click");
+
+            const allDayColumns = wrapper.findAll(".cal__day");
+            allDayColumns.map((dayCol, index) => {
+                expect(dayCol.text()).toContain(`${index + 14}. września 2020`);
+            });
+
+            const todayButton = wrapper.find("[data-cy=todayButton]");
+            await todayButton.trigger("click");
+
+            allDayColumns.map((dayCol, index) => {
+                expect(dayCol.text()).toContain(`${index + 12}. października 2020`);
+            });
+        });
     });
 
     describe("current time indicator", () => {
+        it("renders indicator on 5th column 23th row and 8% top properties", () => {
+            const wrapper = shallowMount(WorkCalendar, {
+                global: {
+                    provide: {
+                        userService,
+                        dateService: {
+                            getNow: () => new Date(2020, 9, 14, 22, 5, 30)
+                        }
+                    },
+                    components
+                }
+            });
+            const currentTimeIndicator = wrapper.find(".cal__current-time");
+            const indicatorStyles = currentTimeIndicator.attributes().style;
+            expect(indicatorStyles).toBe("grid-column: 5; grid-row: 23; top: 8%;");
+        });
+
         it("renders indicator on 7th column 16th row and 37% top properties", () => {
             const wrapper = shallowMount(WorkCalendar, {
                 global: {
@@ -133,7 +183,7 @@ describe("WorkCalendar.vue", () => {
             expect(indicatorStyles).toBe("grid-column: 7; grid-row: 16; top: 37%;");
         });
 
-        it("renders indicator on 7th column 16th row and 37% top properties", () => {
+        it("renders indicator on 4th column 4th row and 18% top properties", () => {
             const wrapper = shallowMount(WorkCalendar, {
                 global: {
                     provide: {
@@ -150,7 +200,7 @@ describe("WorkCalendar.vue", () => {
             expect(indicatorStyles).toBe("grid-column: 4; grid-row: 4; top: 18%;");
         });
 
-        it("renders indicator on 7th column 16th row and 37% top properties", () => {
+        it("renders indicator on 6th column 1st row and 0% top properties", () => {
             const wrapper = shallowMount(WorkCalendar, {
                 global: {
                     provide: {

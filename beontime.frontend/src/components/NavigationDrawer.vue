@@ -92,7 +92,7 @@ export default defineComponent({
 
   &__icon {
     @apply h-6;
-    @apply w-1/4;
+    width: 25%;
     @apply pr-5;
     display: inline-block;
   }
