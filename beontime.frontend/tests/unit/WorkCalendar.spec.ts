@@ -2,6 +2,7 @@ import { shallowMount, VueWrapper } from "@vue/test-utils";
 
 import WorkCalendar from "@/views/WorkCalendar.vue";
 import FontAwesomeIcon from "@/libs/FontAwesomeIcon.vue";
+import BeButton from "@/libs/BeButton.vue";
 
 import { User, UserService } from "@/services/userService";
 import { pl } from "date-fns/locale";
@@ -23,7 +24,7 @@ describe("WorkCalendar.vue", () => {
             fetchUser: jest.fn()
         };
 
-        components = { FontAwesomeIcon };
+        components = { FontAwesomeIcon, BeButton };
     });
     describe("general behaviour", () => {
         let wrapper: VueWrapper<any>;
