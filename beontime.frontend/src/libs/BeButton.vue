@@ -50,7 +50,7 @@ export default defineComponent({
         },
         color: {
             type: String,
-            default: "default"
+            default: "primary"
         },
         icon: {
             type: String,
@@ -76,34 +76,6 @@ export default defineComponent({
 </script>
 
 <style lang='less' scoped>
-@default-color: #9f9f9f;
-@default-hover-color: #2c3e50;
-
-@primary-color: #22a7f0;
-@primary-hover-color: #0d7cb9;
-
-@success-color: #019875;
-@success-hover-color: #01654e;
-
-@warning-color: #f4b350;
-@warning-hover-color: #e9920f;
-
-@error-color: #d91e18;
-@error-hover-color: #941410;
-
-@disabled-color: #dadada;
-
-.button-color(@color, @hover-color) {
-    @apply "border-@{color}-600";
-    @apply "bg-@{color}-600";
-    @apply "text-white";
-
-    &:hover {
-        @apply "border-@{color}-700";
-        @apply "bg-@{color}-700";
-    }
-}
-
 .be-button {
     cursor: pointer;
     border: none;
@@ -133,24 +105,49 @@ export default defineComponent({
         opacity: 0.333;
     }
 
-    &[color="default"] {
-        .button-color(@default-color, @default-hover-color);
+    &[color="primary"] {
+        @apply bg-blue-600;
+        @apply text-white;
+
+        &:hover {
+            @apply bg-blue-700;
+        }
     }
 
-    &[color="primary"] {
-        .button-color(@primary-color, @primary-hover-color);
+    &[color="secondary"] {
+        @apply bg-indigo-600;
+        @apply text-white;
+
+        &:hover {
+            @apply bg-indigo-700;
+        }
     }
 
     &[color="success"] {
-        .button-color(@success-color, @success-hover-color);
+        @apply bg-green-600;
+        @apply text-white;
+
+        &:hover {
+            @apply bg-green-700;
+        }
     }
 
     &[color="warning"] {
-        .button-color(@warning-color, @warning-hover-color);
+        @apply bg-orange-600;
+        @apply text-white;
+
+        &:hover {
+            @apply bg-orange-700;
+        }
     }
 
     &[color="danger"] {
-        .button-color(@error-color, @error-hover-color);
+        @apply bg-red-600;
+        @apply text-white;
+
+        &:hover {
+            @apply bg-red-700;
+        }
     }
 }
 </style>

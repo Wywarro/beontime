@@ -1,154 +1,6 @@
 <template>
     <div>
         <div class="cal__container">
-            <div style="display: flex;">
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="primary"
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="danger"
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="success"
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="warning"
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="white"
-                    @click="setToday"
-                >Today</BeButton>
-            </div>
-            <div style="display: flex;">
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="primary"
-                    disabled
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    disabled
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="danger"
-                    disabled
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="success"
-                    disabled
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="warning"
-                    disabled
-                    @click="setToday"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="white"
-                    disabled
-                    @click="setToday"
-                >Today</BeButton>
-            </div>
-            <div style="display: flex;">
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="primary"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="danger"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="success"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="warning"
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="white"
-                >Today</BeButton>
-            </div>
-            <div style="display: flex;">
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="primary"
-                    disabled
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    disabled
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="danger"
-                    disabled
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="success"
-                    disabled
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="warning"
-                    disabled
-                >Today</BeButton>
-                <BeButton
-                    class="cal__today"
-                    data-cy="todayButton"
-                    color="white"
-                    disabled
-                >Today</BeButton>
-            </div>
             <div class="cal__header">
                 <font-awesome-icon
                     icon="chevron-circle-left"
@@ -161,6 +13,7 @@
 
                 <BeButton
                     class="cal__today"
+                    color="secondary"
                     data-cy="todayButton"
                     @click="setToday"
                 >Today</BeButton>
@@ -389,6 +242,8 @@ export default defineComponent({
 
     &__today {
         width: 10%;
+        border-radius: 0 !important;
+        height: 100%;
     }
 
     &__nav-icon {
