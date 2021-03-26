@@ -16,4 +16,20 @@ const app = createApp(App).use(store).use(router);
 app.component("FontAwesomeIcon", FontAwesomeIcon);
 app.component("BeButton", BeButton);
 
-app.mount("#app");
+app.config.warnHandler = (msg, vm, trace) => {
+    if (process.env.NODE_ENV === "development") {
+        // eslint-disable-next-line no-console
+        console.warn({ msg, vm, trace });
+    }
+};
+
+app.config.errorHandler = (err, vm, info) => {
+    if (process.env.NODE_ENV === "development") {
+        // eslint-disable-next-line no-console
+        console.error({ err, vm, info });
+    }
+};
+
+router.isReady().then(() => {
+    app.mount("#app");
+});
