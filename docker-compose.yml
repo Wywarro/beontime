@@ -1,0 +1,68 @@
+version: "3.7"
+
+volumes:
+  mongodb_data_container:
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: beontime-mongo.dev
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=rootpassword
+      - MONGO_INITDB_DATABASE=beontime_dev
+    command: mongod --port 27018
+    ports:
+      - 27018:27018
+    volumes:
+      - mongodb_data_container:/data/db
+      - ./docker/development/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    restart: always
+
+  mongo_express:
+    image: mongo-express
+    container_name: beontime-mongo_express.dev
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpassword
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27018
+    restart: always
+    depends_on:
+      - mongo
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/development/aspnet/Dockerfile
+    container_name: beontime-api.dev
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/Falcon.Web/Properties
+    env_file: ./.docker-env-dev
+    restart: always
+    depends_on:
+      - mongo
+
+  vue:
+    build:
+      context: .
+      dockerfile: docker/development/vue/Dockerfile
+    container_name: beontime-ui.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      - ./frontend:/app/src:cached
+      - /app/src/node_modules
+    stdin_open: true
+    tty: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=1000
+    depends_on:
+      - mongo
