@@ -14,8 +14,7 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted, provide } from "vue";
-import { Options, Vue, setup } from "vue-class-component";
+import { Options, Vue } from "vue-class-component";
 
 import Topbar from "@/components/Topbar.vue";
 import NavigationDrawer from "@/components/NavigationDrawer.vue";
@@ -23,8 +22,8 @@ import NavigationDrawer from "@/components/NavigationDrawer.vue";
 import firebase from "firebase/app";
 import "firebase/auth";
 
-import userService from "@/services/UserService";
-import dateService from "@/services/DateService22";
+import { Inject } from 'inversify-props';
+import IUserService from "./services/IUserService";
 
 @Options({
   components: {
@@ -33,16 +32,14 @@ import dateService from "@/services/DateService22";
   }
 })
 export default class App extends Vue {
-  composition = setup(() => {
-    provide("userService", userService);
-    provide("dateService", dateService);
-  });
-
   drawerOpened = true;
 
-  mounted() {
+  @Inject()
+  private userService!: IUserService;
+
+  mounted(): void {
     firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
-      userService.fetchUser(user);
+      this.userService.fetchUser(user);
     });
   }
 }

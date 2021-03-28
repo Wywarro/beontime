@@ -32,7 +32,7 @@
         <div />
         <div />
         <div v-for="day in days" :key="`30${day}`" class="cal__day">
-          {{ formatDate(getDayFromMonday(day), dayFormatTokens) }}
+          {{ dateService.format(getDayFromMonday(day), dayFormatTokens) }}
         </div>
       </div>
       <div class="cal__content">
@@ -75,8 +75,6 @@
 </template>
 
 <script lang="ts">
-import { inject } from "vue";
-
 import { enUS } from "date-fns/locale";
 import {
   getHours,
@@ -86,18 +84,18 @@ import {
   addDays,
   addWeeks,
   addSeconds,
-  startOfWeek,
-  format,
   Locale,
 } from "date-fns";
 
 import { range } from "lodash";
 
 import CalendarNavigator from "@/components/CalendarNavigator.vue";
-import { UserService } from "@/services/UserService";
-import { DateService } from "@/services/DateService22";
 
-import { Vue, Options, setup } from "vue-class-component";
+import { Inject } from 'inversify-props';
+
+import { Vue, Options } from "vue-class-component";
+import IDateService from "@/services/IDateService";
+import IUserService from "@/services/IUserService";
 
 @Options({
   components: {
@@ -124,21 +122,22 @@ export default class WorkCalendar extends Vue {
     }, 1000);
   }
 
-  dateService = setup(() => inject<DateService>("dateService")) as DateService;
+  @Inject()
+  private dateService!: IDateService;
   pickedDate = this.dateService.getNow();
 
-  userService = setup(() => inject<UserService>("userService")) as UserService;
+  @Inject()
+  private userService!: IUserService;
   locale: Locale = this.userService.user.preferences.locale ?? enUS;
 
   get isCurrentWeek(): boolean {
-    const pickedDateMonday = startOfWeek(this.pickedDate, {
-      locale: this.locale,
-    });
-    const currentMonday = startOfWeek(this.dateService.getNow(), {
-      locale: this.locale,
-    });
+    const currentMonday = this.dateService.startOfWeek(this.dateService.getNow());
 
-    return pickedDateMonday.getTime() === currentMonday.getTime();
+    return this.pickedDateMonday.getTime() === currentMonday.getTime();
+  }
+
+  get pickedDateMonday(): Date {
+    return this.dateService.startOfWeek(this.pickedDate);
   }
 
   setToday(): void {
@@ -154,16 +153,15 @@ export default class WorkCalendar extends Vue {
   }
 
   getDayFromMonday(dayFromMonday: number): Date {
-    const monday = startOfWeek(this.pickedDate, { locale: this.locale });
-    return addDays(monday, dayFromMonday);
+    return addDays(this.pickedDateMonday, dayFromMonday);
   }
 
   formatDate(date: Date, formatTokens: string): string {
-    return format(date, formatTokens, { locale: this.locale });
+    return this.dateService.format(date, formatTokens);
   }
 
   get showMonth(): string {
-    return this.formatDate(this.pickedDate, this.monthFormatTokens);
+    return this.dateService.format(this.pickedDate, this.monthFormatTokens);
   }
 
   get currentDayOnGrid(): number {

@@ -1,27 +1,10 @@
 import { reactive } from "vue";
-
 import firebase from "firebase/app";
-
 import { injectable } from "inversify-props";
-
-import { Locale } from "date-fns";
 import { pl } from "date-fns/locale";
+import IUserService from "./IUserService";
+import User from "@/types/User";
 
-export interface User {
-  data: firebase.User | null;
-  token: string;
-  preferences: {
-    locale: Locale;
-  };
-}
-
-export interface IUserService {
-  user: User;
-  fetchUser: (user: firebase.User | null) => void;
-  setToken: () => Promise<void>;
-  getToken: string;
-  isAuthenticated: () => Promise<firebase.User | null>;
-}
 
 @injectable()
 export default class UserService implements IUserService {
