@@ -1,52 +1,51 @@
 <template>
-    <nav class="topbar-nav">
-        <button
-            class="hamburger hamburger--elastic hamburger-icon"
-            :class="{'is-active': drawerOpened }"
-            type="button"
-            @click="toggleDrawer"
-        >
-            <span class="hamburger-box">
-                <span class="hamburger-inner"></span>
-            </span>
-        </button>
-        <div>
-            <router-link class="mr-6" :to="{ name: 'login' }">Login</router-link>
-            <router-link :to="{ name: 'signup' }">Sign up</router-link>
-        </div>
-    </nav>
+  <nav class="topbar-nav">
+    <button
+      class="hamburger hamburger--elastic hamburger-icon"
+      :class="{ 'is-active': drawerOpened }"
+      type="button"
+      @click="toggleDrawer"
+    >
+      <span class="hamburger-box">
+        <span class="hamburger-inner"></span>
+      </span>
+    </button>
+    <div>
+      <router-link class="mr-6" :to="{ name: 'login' }">Login</router-link>
+      <router-link :to="{ name: 'signup' }">Sign up</router-link>
+    </div>
+  </nav>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { Options, Vue } from "vue-class-component";
 
-export default defineComponent({
-    name: "Topbar",
-    props: {
-        drawerOpened: {
-            type: Boolean,
-            required: true,
-            default: false,
-        },
-    },
-    emits: {
-        "update:drawerOpened": (drawerOpened: boolean) => {
-            if (typeof drawerOpened === "boolean") {
-                return true;
-            } else {
-                console.warn("Invalid drawerOpened payload!");
-                return false;
-            }
-        },
-    },
-    setup(props, context) {
-        const toggleDrawer = () => {
-            context.emit("update:drawerOpened", !props.drawerOpened);
-        };
+@Options({
+  props: {
+    drawerOpened: {
+      type: Boolean,
+      required: true,
+      default: false
+    }
+  },
+  emits: {
+    "update:drawerOpened": (drawerOpened: boolean) => {
+      if (typeof drawerOpened === "boolean") {
+        return true;
+      } else {
+        console.warn("Invalid drawerOpened payload!");
+        return false;
+      }
+    }
+  }
+})
+export default class Topbar extends Vue {
+  drawerOpened!: boolean;
 
-        return { toggleDrawer, };
-    },
-});
+  toggleDrawer(): void {
+    this.$emit("update:drawerOpened", !this.drawerOpened);
+  }
+}
 </script>
 
 <style lang="less" scoped>

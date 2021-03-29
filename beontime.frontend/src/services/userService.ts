@@ -1,49 +1,53 @@
-import { reactive, readonly } from "vue";
-
+import { reactive } from "vue";
 import firebase from "firebase/app";
-
-import { Locale } from "date-fns";
+import { injectable } from "inversify-props";
 import { pl } from "date-fns/locale";
+import IUserService from "./IUserService";
+import User from "@/types/User";
 
-export interface User {
-    loggedIn: boolean,
-    data: firebase.User | null,
-    preferences: {
-        locale: Locale;
-    }
-}
 
-export interface UserService {
-    user: User,
-    fetchUser: (user: firebase.User | null) => void,
-}
-
-const user = reactive<User>({
-    loggedIn: false,
+@injectable()
+export default class UserService implements IUserService {
+  user = reactive<User>({
     data: null,
+    token: "",
     preferences: {
-        locale: pl
-    }
-});
+      locale: pl,
+    },
+  });
 
-const setLoggedIn = (value: boolean) => {
-    user.loggedIn = value;
-};
+  setUser(data: firebase.User | null): void {
+    this.user.data = data;
+  }
 
-const setUser = (data: firebase.User | null) => {
-    user.data = data;
-};
-
-const fetchUser = (user: firebase.User | null): void => {
-    setLoggedIn(user !== null);
+  async fetchUser(user: firebase.User | null): Promise<void> {
     if (user) {
-        setUser({
-            displayName: user.displayName,
-            email: user.email,
-        } as firebase.User);
-    } else {
-        setUser(null);
-    }
-};
+      this.setUser({
+        displayName: user.displayName,
+        email: user.email,
+      } as firebase.User);
 
-export default { user: readonly(user), fetchUser } as UserService;
+      await this.setToken();
+    } else {
+      this.setUser(null);
+    }
+  }
+
+  async setToken(): Promise<void> {
+    const token = (await firebase.auth().currentUser?.getIdToken()) ?? "";
+    this.user.token = token;
+  }
+
+  get getToken(): string {
+    return this.user.token;
+  }
+
+  async isAuthenticated(): Promise<firebase.User | null> {
+    return new Promise((resolve, reject) => {
+      const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+        unsubscribe();
+        resolve(user);
+      }, reject);
+    });
+  }
+}
