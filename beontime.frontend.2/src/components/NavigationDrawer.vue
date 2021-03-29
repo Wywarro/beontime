@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import { NavigationItem } from "@/types/NavigationItem";
+import NavigationItem from "@/types/NavigationItem";
 
 @Options({
   props: {
@@ -53,7 +53,7 @@ export default class NavigationDrawer extends Vue {
   @apply top-0;
   @apply left-0;
   @apply w-64;
-  @apply bg-teal-500;
+  @apply bg-green-500;
   @apply fixed;
   @apply h-full;
   @apply overflow-auto;

@@ -18,8 +18,7 @@
           color="secondary"
           data-cy="todayButton"
           @click="setToday"
-          >Today</BeButton
-        >
+        >Today</BeButton>
 
         <font-awesome-icon
           icon="chevron-circle-right"
@@ -91,7 +90,7 @@ import { range } from "lodash";
 
 import CalendarNavigator from "@/components/CalendarNavigator.vue";
 
-import { Inject } from 'inversify-props';
+import { Inject } from "inversify-props";
 
 import { Vue, Options } from "vue-class-component";
 import IDateService from "@/services/IDateService";
@@ -122,12 +121,10 @@ export default class WorkCalendar extends Vue {
     }, 1000);
   }
 
-  @Inject()
-  private dateService!: IDateService;
+  @Inject() dateService!: IDateService;
   pickedDate = this.dateService.getNow();
 
-  @Inject()
-  private userService!: IUserService;
+  @Inject() userService!: IUserService;
   locale: Locale = this.userService.user.preferences.locale ?? enUS;
 
   get isCurrentWeek(): boolean {
@@ -205,7 +202,7 @@ export default class WorkCalendar extends Vue {
   }
 
   &__header {
-    @apply bg-teal-500;
+    @apply bg-green-500;
     text-align: center;
     display: flex;
     align-items: center;

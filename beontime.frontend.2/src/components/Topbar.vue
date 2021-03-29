@@ -40,9 +40,9 @@ import { Options, Vue } from "vue-class-component";
   }
 })
 export default class Topbar extends Vue {
-  drawerOpened: Boolean;
+  drawerOpened!: boolean;
 
-  toggleDrawer() {
+  toggleDrawer(): void {
     this.$emit("update:drawerOpened", !this.drawerOpened);
   }
 }

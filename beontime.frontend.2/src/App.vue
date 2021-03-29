@@ -34,8 +34,7 @@ import IUserService from "./services/IUserService";
 export default class App extends Vue {
   drawerOpened = true;
 
-  @Inject()
-  private userService!: IUserService;
+  @Inject() userService!: IUserService;
 
   mounted(): void {
     firebase.auth().onAuthStateChanged((user: firebase.User | null) => {

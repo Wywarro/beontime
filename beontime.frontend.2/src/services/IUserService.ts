@@ -1,4 +1,5 @@
 import firebase from "firebase/app";
+import User from "@/types/User";
 
 export default interface IUserService {
   user: User;

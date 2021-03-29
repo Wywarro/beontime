@@ -55,14 +55,14 @@ interface Tags {
 export default class BeButton extends Vue {
   href!: string;
   to!: string;
-  disabled!: Boolean;
+  disabled!: boolean;
   type!: string;
   color!: string;
   icon!: string;
 
-  loading: Boolean = false;
+  loading = false;
 
-  get componentTag() {
+  get componentTag(): string {
     const tags = {
       link: () => "router-link",
       anchor: () => "a",
@@ -133,11 +133,11 @@ export default class BeButton extends Vue {
   }
 
   &[color="warning"] {
-    @apply bg-orange-600;
+    @apply bg-yellow-600;
     @apply text-white;
 
     &:hover {
-      @apply bg-orange-700;
+      @apply bg-yellow-700;
     }
   }
 

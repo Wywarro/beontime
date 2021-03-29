@@ -1,7 +1,9 @@
+import "reflect-metadata";
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
+
 import buildDependencyContainer from "./app.container";
 
 import { FontAwesomeIcon } from "@/plugins/font-awesome";
@@ -11,6 +13,8 @@ import "@/assets/tailwind.css";
 import "hamburgers/dist/hamburgers.css";
 
 import "./firebaseInit";
+
+buildDependencyContainer();
 
 const app = createApp(App).use(store).use(router);
 
@@ -30,8 +34,6 @@ app.config.errorHandler = (err, vm, info) => {
     console.error({ err, vm, info });
   }
 };
-
-buildDependencyContainer();
 
 router.isReady().then(() => {
   app.mount("#app");

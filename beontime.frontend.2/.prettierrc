@@ -7,5 +7,5 @@
     "bracketSpacing": true,
     "printWidth": 80,
     "endOfLine": "auto",
-    "parser": "flow"
+    "parser": "babel"
 }

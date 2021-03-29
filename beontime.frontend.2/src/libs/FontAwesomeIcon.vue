@@ -11,7 +11,9 @@
 <script lang="ts">
 import {
   findIconDefinition,
+  IconDefinition,
   IconName,
+  IconPathData,
   IconPrefix
 } from "@fortawesome/fontawesome-svg-core";
 
@@ -36,22 +38,22 @@ export default class FontAwesomeIcon extends Vue {
   type!: string;
   class!: string;
 
-  get definition() {
+  get definition(): IconDefinition {
     return findIconDefinition({
       prefix: this.type as IconPrefix,
       iconName: this.icon as IconName
     });
   }
 
-  get width() {
+  get width(): number {
     return this.definition.icon[0];
   }
 
-  get height() {
+  get height(): number {
     return this.definition.icon[1];
   }
 
-  get svgPath() {
+  get svgPath(): IconPathData {
     return this.definition.icon[4];
   }
 }
