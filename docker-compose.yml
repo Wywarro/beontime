@@ -41,8 +41,8 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./backend:/app
-      - /app/Falcon.Web/Properties
+      - ./beontime.backend:/app
+      - /app/BEonTime.Web/Properties
     env_file: ./.docker-env-dev
     restart: always
     depends_on:
@@ -57,7 +57,7 @@ services:
       - "8080:8080"
     volumes:
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      - ./frontend:/app/src:cached
+      - ./beontime.frontend:/app/src:cached
       - /app/src/node_modules
     stdin_open: true
     tty: true
