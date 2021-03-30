@@ -5,19 +5,19 @@ WORKDIR /app
 
 ENV DOTNET_USE_POLLING_FILE_WATCHER 1
 
-COPY *.sln .
-COPY BEonTime.Web/Directory.Build.props ./BEonTime.Web/
-COPY BEonTime.Web/*.csproj ./BEonTime.Web/
-COPY BEonTime.Test/*.csproj ./BEonTime.Test/
-COPY BEonTime.Services/*.csproj ./BEonTime.Services/
-COPY BEonTime.Data/*.csproj ./BEonTime.Data/
+COPY beontime.backend/*.sln .
+COPY beontime.backend/BEonTime.Web/Directory.Build.props ./BEonTime.Web/
+COPY beontime.backend/BEonTime.Web/*.csproj ./BEonTime.Web/
+COPY beontime.backend/BEonTime.Test/*.csproj ./BEonTime.Test/
+COPY beontime.backend/BEonTime.Services/*.csproj ./BEonTime.Services/
+COPY beontime.backend/BEonTime.Data/*.csproj ./BEonTime.Data/
 
 RUN dotnet restore
 
-COPY BEonTime.Web/ ./BEonTime.Web
+COPY beontime.backend/BEonTime.Web/ ./BEonTime.Web
 COPY docker/development/aspnet/docker.launchSettings.json ./BEonTime.Web/Properties/launchSettings.json
-COPY BEonTime.Services/ ./BEonTime.Services/
-COPY BEonTime.Data/ ./BEonTime.Data/
+COPY beontime.backend/BEonTime.Services/ ./BEonTime.Services/
+COPY beontime.backend/BEonTime.Data/ ./BEonTime.Data/
 
 WORKDIR /app/BEonTime.Web
 
