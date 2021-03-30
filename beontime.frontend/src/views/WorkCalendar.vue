@@ -1,209 +1,188 @@
 <template>
-    <div>
-        <div class="cal__container">
-            <div class="cal__header">
-                <font-awesome-icon
-                    icon="chevron-circle-left"
-                    data-cy="substractWeekButton"
-                    class="cal__nav-icon"
-                    @click="subtractOneWeek"
-                />
+  <div>
+    <div class="cal__container">
+      <div class="cal__header">
+        <font-awesome-icon
+          icon="chevron-circle-left"
+          data-cy="substractWeekButton"
+          class="cal__nav-icon"
+          @click="subtractOneWeek"
+        />
 
-                <div class="cal__title">{{ showMonth[0].toUpperCase() + showMonth.slice(1) }}</div>
-
-                <BeButton
-                    class="cal__today"
-                    color="secondary"
-                    data-cy="todayButton"
-                    @click="setToday"
-                >Today</BeButton>
-
-                <font-awesome-icon
-                    icon="chevron-circle-right"
-                    data-cy="addWeekButton"
-                    class="cal__nav-icon"
-                    @click="addOneWeek"
-                />
-
-            </div>
-            <div class="cal__days">
-                <div />
-                <div />
-                <div
-                    v-for="day in days"
-                    :key="`30${day}`"
-                    class="cal__day"
-                >{{ formatDate(getDayFromMonday(day), dayFormatTokens) }}</div>
-            </div>
-            <div class="cal__content">
-                <div
-                    v-for="hour in hours"
-                    :key="hour"
-                    class="cal__time"
-                    :style="{ 'grid-row': hour }"
-                >
-                    {{ hourTime(hour) }}
-                </div>
-                <div class="cal__filler-col" />
-                <div
-                    v-for="day in days"
-                    :key="`10${day}`"
-                    class="cal__col"
-                    :style="{ 'grid-column': day + 3 }"
-                />
-                <div
-                    v-for="hour in hours"
-                    :key="`20${hour}`"
-                    class="cal__row"
-                    :style="{ 'grid-row': hour }"
-                />
-                <div
-                    v-if="isCurrentWeek"
-                    class="cal__current-time"
-                    :style="{ 'grid-column': currentDayOnGrid, 'grid-row': currentHourOnGrid, 'top': currentMinute}"
-                >
-                    <div class="cal__circle" />
-                </div>
-            </div>
+        <div class="cal__title">
+          {{ showMonth[0].toUpperCase() + showMonth.slice(1) }}
         </div>
-        <CalendarNavigator class="cal__navigator" :month="currentMonth" />
+
+        <BeButton
+          class="cal__today"
+          color="secondary"
+          data-cy="todayButton"
+          @click="setToday"
+        >Today</BeButton>
+
+        <font-awesome-icon
+          icon="chevron-circle-right"
+          data-cy="addWeekButton"
+          class="cal__nav-icon"
+          @click="addOneWeek"
+        />
+      </div>
+      <div class="cal__days">
+        <div />
+        <div />
+        <div v-for="day in days" :key="`30${day}`" class="cal__day">
+          {{ dateService.format(getDayFromMonday(day), dayFormatTokens) }}
+        </div>
+      </div>
+      <div class="cal__content">
+        <div
+          v-for="hour in hours"
+          :key="hour"
+          class="cal__time"
+          :style="{ 'grid-row': hour }"
+        >
+          {{ hourTime(hour) }}
+        </div>
+        <div class="cal__filler-col" />
+        <div
+          v-for="day in days"
+          :key="`10${day}`"
+          class="cal__col"
+          :style="{ 'grid-column': day + 3 }"
+        />
+        <div
+          v-for="hour in hours"
+          :key="`20${hour}`"
+          class="cal__row"
+          :style="{ 'grid-row': hour }"
+        />
+        <div
+          v-if="isCurrentWeek"
+          class="cal__current-time"
+          :style="{
+            'grid-column': currentDayOnGrid,
+            'grid-row': currentHourOnGrid,
+            top: currentMinute,
+          }"
+        >
+          <div class="cal__circle" />
+        </div>
+      </div>
     </div>
+    <CalendarNavigator class="cal__navigator" :month="currentMonth" />
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref, computed, onMounted, inject } from "vue";
-
 import { enUS } from "date-fns/locale";
 import {
-    getHours,
-    getDay,
-    getMinutes,
-    getMonth,
-
-    addDays,
-    addWeeks,
-    addSeconds,
-
-    startOfWeek,
-    format,
-    Locale
+  getHours,
+  getDay,
+  getMinutes,
+  getMonth,
+  addDays,
+  addWeeks,
+  addSeconds,
+  Locale,
 } from "date-fns";
 
 import { range } from "lodash";
 
 import CalendarNavigator from "@/components/CalendarNavigator.vue";
-import { UserService } from "@/services/userService";
-import { DateService } from "@/services/dateService";
 
-export default defineComponent({
-    name: "WorkCalendar",
-    components: {
-        CalendarNavigator
-    },
-    setup() {
-        const dayFormatTokens = "do. MMMM yyyy";
-        const monthFormatTokens = "LLLL wo. 'tydzień' yyyy";
+import { Inject } from "inversify-props";
 
-        const hours = ref(range(1, 24));
-        const days = ref(range(0, 7));
+import { Vue, Options } from "vue-class-component";
+import IDateService from "@/services/IDateService";
+import IUserService from "@/services/IUserService";
 
-        const hourTime = (number: number) => {
-            if (number < 10) {
-                return `0${number}:00`;
-            }
-            return `${number}:00`;
-        };
+@Options({
+  components: {
+    CalendarNavigator,
+  },
+})
+export default class WorkCalendar extends Vue {
+  dayFormatTokens = "do. MMMM yyyy";
+  monthFormatTokens = "LLLL wo. 'tydzień' yyyy";
 
-        const dateService = inject<DateService>("dateService") ?? { getNow: () => new Date() };
-        const pickedDate = ref(dateService.getNow()) as Ref<Date>;
+  hours = range(1, 24);
+  days = range(0, 7);
 
-        const isCurrentWeek = computed(() => {
-            const pickedDateMonday = startOfWeek(pickedDate.value, { locale });
-            const currentMonday = startOfWeek(dateService.getNow(), { locale });
+  hourTime(number: number): string {
+    if (number < 10) {
+      return `0${number}:00`;
+    }
+    return `${number}:00`;
+  }
 
-            return pickedDateMonday.getTime() === currentMonday.getTime();
-        });
+  mounted(): void {
+    setInterval(() => {
+      this.pickedDate = addSeconds(this.pickedDate, 1);
+    }, 1000);
+  }
 
-        const setToday = () => {
-            pickedDate.value = dateService.getNow();
-        };
+  @Inject() dateService!: IDateService;
+  pickedDate = this.dateService.getNow();
 
-        onMounted(() => {
-            setInterval(() => {
-                pickedDate.value = addSeconds(pickedDate.value, 1);
-            }, 1000);
-        });
+  @Inject() userService!: IUserService;
+  locale: Locale = this.userService.user.preferences.locale ?? enUS;
 
-        const addOneWeek = () => {
-            pickedDate.value = addWeeks(pickedDate.value, 1);
-        };
-        const subtractOneWeek = () => {
-            pickedDate.value = addWeeks(pickedDate.value, -1);
-        };
+  get isCurrentWeek(): boolean {
+    const currentMonday = this.dateService.startOfWeek(this.dateService.getNow());
 
-        const userService = inject<UserService>("userService");
-        const locale: Locale = userService?.user?.preferences?.locale ?? enUS;
+    return this.pickedDateMonday.getTime() === currentMonday.getTime();
+  }
 
-        const getDayFromMonday = (dayFromMonday: number) => {
-            const monday = startOfWeek(pickedDate.value, { locale });
-            return addDays(monday, dayFromMonday);
-        };
+  get pickedDateMonday(): Date {
+    return this.dateService.startOfWeek(this.pickedDate);
+  }
 
-        const formatDate = (date: Date, formatTokens: string) => {
-            return format(date, formatTokens, { locale });
-        };
+  setToday(): void {
+    this.pickedDate = this.dateService.getNow();
+  }
 
-        const showMonth = computed(() => {
-            return formatDate(pickedDate.value, monthFormatTokens);
-        });
+  addOneWeek(): void {
+    this.pickedDate = addWeeks(this.pickedDate, 1);
+  }
 
-        const currentDayOnGrid = computed(() => {
-            const gridAdjustment = 2;
-            return getDay(pickedDate.value) + gridAdjustment;
-        });
+  subtractOneWeek(): void {
+    this.pickedDate = addWeeks(this.pickedDate, -1);
+  }
 
-        const currentMonth = computed(() => {
-            return getMonth(pickedDate.value);
-        });
+  getDayFromMonday(dayFromMonday: number): Date {
+    return addDays(this.pickedDateMonday, dayFromMonday);
+  }
 
-        const currentHourOnGrid = computed(() => {
-            const gridAdjustment = 1;
-            return getHours(pickedDate.value) + gridAdjustment;
-        });
+  formatDate(date: Date, formatTokens: string): string {
+    return this.dateService.format(date, formatTokens);
+  }
 
-        const currentMinute = computed(() => {
-            const oneHourInMinutes = 60;
-            const minutesPercentage = getMinutes(pickedDate.value) / oneHourInMinutes * 100;
+  get showMonth(): string {
+    return this.dateService.format(this.pickedDate, this.monthFormatTokens);
+  }
 
-            return `${Math.round(minutesPercentage)}%`;
-        });
+  get currentDayOnGrid(): number {
+    const gridAdjustment = 2;
+    return getDay(this.pickedDate) + gridAdjustment;
+  }
 
-        return {
-            dayFormatTokens,
-            monthFormatTokens,
+  get currentMonth(): number {
+    return getMonth(this.pickedDate);
+  }
 
-            hours,
-            days,
-            hourTime,
+  get currentHourOnGrid(): number {
+    const gridAdjustment = 1;
+    return getHours(this.pickedDate) + gridAdjustment;
+  }
 
-            pickedDate,
-            isCurrentWeek,
+  get currentMinute(): string {
+    const oneHourInMinutes = 60;
+    const minutesPercentage =
+      (getMinutes(this.pickedDate) / oneHourInMinutes) * 100;
 
-            setToday,
-            addOneWeek,
-            subtractOneWeek,
-
-            getDayFromMonday,
-            formatDate,
-
-            showMonth,
-            currentDayOnGrid,
-            currentMonth,
-            currentHourOnGrid,
-            currentMinute,
-        };
-    },
-});
+    return `${Math.round(minutesPercentage)}%`;
+  }
+}
 </script>
 
 <style lang="less" scoped>
@@ -216,114 +195,114 @@ export default defineComponent({
 @current-time-color: #ea4335;
 
 .cal {
-    &__container {
-        width: 100%;
-        display: grid;
-        grid-template-rows: @title-height @days-height auto;
-    }
+  &__container {
+    width: 100%;
+    display: grid;
+    grid-template-rows: @title-height @days-height auto;
+  }
 
-    &__header {
-        @apply bg-teal-500;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        z-index: 10;
+  &__header {
+    @apply bg-green-500;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
 
-        position: sticky;
-        top: 4rem;
-    }
+    position: sticky;
+    top: 4rem;
+  }
 
-    &__title {
-        color: #fff;
-        width: 20%;
-        @apply text-white;
-    }
+  &__title {
+    color: #fff;
+    width: 20%;
+    @apply text-white;
+  }
 
-    &__today {
-        width: 10%;
-        border-radius: 0 !important;
-        height: 100%;
-    }
+  &__today {
+    width: 10%;
+    border-radius: 0 !important;
+    height: 100%;
+  }
 
-    &__nav-icon {
-        @apply h-6;
-        @apply text-white;
-        width: 25%;
-    }
+  &__nav-icon {
+    @apply h-6;
+    @apply text-white;
+    width: 25%;
+  }
 
-    &__days {
-        @apply bg-gray-200;
-        display: grid;
-        place-content: center;
-        text-align: center;
-        grid-template-columns: @calendar-template;
-        z-index: 10;
-        border-bottom: 2px solid @grid-color;
+  &__days {
+    @apply bg-gray-200;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    grid-template-columns: @calendar-template;
+    z-index: 10;
+    border-bottom: 2px solid @grid-color;
 
-        position: sticky;
-        top: calc(4rem + @title-height);
-    }
+    position: sticky;
+    top: calc(4rem + @title-height);
+  }
 
-    &__day {
-        border-left: 1px solid @grid-color;
-    }
+  &__day {
+    border-left: 1px solid @grid-color;
+  }
 
-    &__content {
-        display: grid;
-        grid-template-columns: @calendar-template;
-        grid-template-rows: repeat(24, @time-height);
-    }
+  &__content {
+    display: grid;
+    grid-template-columns: @calendar-template;
+    grid-template-rows: repeat(24, @time-height);
+  }
 
-    &__time {
-        grid-column: 1;
-        text-align: right;
-        align-self: end;
-        font-size: 80%;
-        position: relative;
-        bottom: -0.5rem;
-        color: #70757a;
-        padding-right: 2px;
-    }
+  &__time {
+    grid-column: 1;
+    text-align: right;
+    align-self: end;
+    font-size: 80%;
+    position: relative;
+    bottom: -0.5rem;
+    color: #70757a;
+    padding-right: 2px;
+  }
 
-    &__col {
-        border-right: 1px solid @grid-color;
-        grid-row: ~"1 / span 24";
-        grid-column: span 1;
-    }
+  &__col {
+    border-right: 1px solid @grid-color;
+    grid-row: ~"1 / span 24";
+    grid-column: span 1;
+  }
 
-    &__filler-col {
-        grid-row: ~"1 / -1";
-        grid-column: 2;
-        border-right: 1px solid @grid-color;
-    }
+  &__filler-col {
+    grid-row: ~"1 / -1";
+    grid-column: 2;
+    border-right: 1px solid @grid-color;
+  }
 
-    &__row {
-        grid-column: ~"2 / -1";
-        border-bottom: 1px solid @grid-color;
-    }
+  &__row {
+    grid-column: ~"2 / -1";
+    border-bottom: 1px solid @grid-color;
+  }
 
-    &__current-time {
-        border-top: 2px solid @current-time-color;
-        position: relative;
-    }
+  &__current-time {
+    border-top: 2px solid @current-time-color;
+    position: relative;
+  }
 
-    &__circle {
-        width: 12px;
-        height: 12px;
-        border: 1px solid @current-time-color;
-        border-radius: 50%;
-        background: @current-time-color;
-        position: relative;
-        top: -7px;
-        left: -7px;
-    }
+  &__circle {
+    width: 12px;
+    height: 12px;
+    border: 1px solid @current-time-color;
+    border-radius: 50%;
+    background: @current-time-color;
+    position: relative;
+    top: -7px;
+    left: -7px;
+  }
 
-    &__navigator {
-        position: fixed;
-        top: 500px;
-        bottom: 33px;
-        right: 20px;
-    }
+  &__navigator {
+    position: fixed;
+    top: 500px;
+    bottom: 33px;
+    right: 20px;
+  }
 }
 </style>

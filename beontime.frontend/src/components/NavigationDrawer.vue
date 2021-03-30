@@ -1,47 +1,50 @@
 <template>
-    <aside
-        class="transform nav-drawer"
-        :class="drawerOpened ? 'translate-x-0' : '-translate-x-full'">
-        <ul class="nav">
-            <router-link
-                v-for="link in navigation"
-                v-slot="{ href, navigate, isActive, isExactActive }"
-                :key="link.name"
-                class="nav__item"
-                :to="{ name: link.viewName }"
-            >
-                <li
-                    :class="[isActive && 'router-link-active', isExactActive && 'router-link-exact-active']"
-                >
-                    <font-awesome-icon :icon="link.icon" class="nav__icon"/>
-                    <a :href="href" @click="navigate">{{ link.title }}</a>
-                </li>
-            </router-link>
-        </ul>
-    </aside>
+  <aside
+    class="transform nav-drawer"
+    :class="drawerOpened ? 'translate-x-0' : '-translate-x-full'"
+  >
+    <ul class="nav">
+      <router-link
+        v-for="link in navigation"
+        v-slot="{ href, navigate, isActive, isExactActive }"
+        :key="link.name"
+        class="nav__item"
+        :to="{ name: link.viewName }"
+      >
+        <li
+          :class="[
+            isActive && 'router-link-active',
+            isExactActive && 'router-link-exact-active'
+          ]"
+        >
+          <font-awesome-icon :icon="link.icon" class="nav__icon" />
+          <a :href="href" @click="navigate">{{ link.title }}</a>
+        </li>
+      </router-link>
+    </ul>
+  </aside>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { NavigationItem } from "@/types/types";
+import { Options, Vue } from "vue-class-component";
+import NavigationItem from "@/types/NavigationItem";
 
-export default defineComponent({
-    name: "NavigationDrawer",
-    props: {
-        drawerOpened: {
-            type: Boolean,
-            required: true,
-            default: false,
-        },
-    },
-    data: () => ({
-        navigation: [
-            { title: "Home", icon: "home", viewName: "home", },
-            { title: "Work Calendar", icon: "calendar-day", viewName: "work-calendar", },
-            { title: "Overtime status", icon: "receipt", viewName: "overtime-status", },
-        ] as NavigationItem[],
-    }),
-});
+@Options({
+  props: {
+    drawerOpened: {
+      type: Boolean,
+      required: true,
+      default: false
+    }
+  }
+})
+export default class NavigationDrawer extends Vue {
+  navigation: NavigationItem[] = [
+    { title: "Home", icon: "home", viewName: "home" },
+    { title: "Work Calendar", icon: "calendar-day", viewName: "work-calendar" },
+    { title: "Overtime status", icon: "receipt", viewName: "overtime-status" }
+  ];
+}
 </script>
 
 <style scoped lang="less">
@@ -50,7 +53,7 @@ export default defineComponent({
   @apply top-0;
   @apply left-0;
   @apply w-64;
-  @apply bg-teal-500;
+  @apply bg-green-500;
   @apply fixed;
   @apply h-full;
   @apply overflow-auto;
