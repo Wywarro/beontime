@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-
-namespace Beontime.WebApi.Controllers
+﻿namespace Beontime.WebApi.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class AttendanceController : ApiControllerBase
-    {
+    using Microsoft.AspNetCore.Mvc;
 
-    }
+    [ApiController]
+    [Route("attendance")]
+    public class AttendanceController : ApiControllerBase
+    { }
 }

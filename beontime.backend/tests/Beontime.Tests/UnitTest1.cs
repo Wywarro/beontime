@@ -1,14 +1,11 @@
-using System;
-using Xunit;
-
 namespace Beontime.Tests
 {
+    using Xunit;
+
     public class UnitTest1
     {
         [Fact]
         public void Test1()
-        {
-
-        }
+        { }
     }
 }
