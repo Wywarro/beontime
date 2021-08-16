@@ -1,4 +1,4 @@
-﻿namespace Beontime.Application.Extensions
+﻿namespace Beontime.Application.Common.Extensions
 {
     using System;
 

@@ -5,5 +5,6 @@
     public interface IDateTimeService
     {
         DateTime Now { get; }
+        
     }
 }

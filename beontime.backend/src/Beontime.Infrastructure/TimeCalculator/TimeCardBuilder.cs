@@ -2,38 +2,57 @@
 {
     using System;
     using System.Linq;
+    using Application.Common.Extensions;
     using Application.Common.Interfaces;
-    using Application.Extensions;
     using Domain.Aggregates;
     using Domain.Entities;
     using Domain.Enums;
+    using TimeCardBuilderInterfaces;
 
-    public class TimeCardBuilder
+    public class TimeCardBuilder : 
+        IInitialBuilder, IBreakWorkCalculator,
+        IWorkDurationCalculator, ITimeCardBuilder
     {
-        private readonly DateTime now;
-        private readonly TimeCard timeCard;
-        
-        private readonly int NearestMinutes = 5;
-        
-        public TimeCardBuilder(WorkdayEntity workday, IDateTimeService dateTimeService)
+        private readonly IDateTimeService dateTimeService;
+        private DateTime now;
+        private TimeCard timeCard = new();
+
+        private const int NearestMinutes = 5;
+
+        public TimeCardBuilder(IDateTimeService dateTimeService)
+        {
+            this.dateTimeService = dateTimeService;
+
+            Reset();
+        }
+
+        private void Reset()
         {
             now = dateTimeService.Now;
-            timeCard = new TimeCard
-            {
-                Day = workday.Day,
-                Attendances = workday.Attendances
-                    .OrderBy(x => x.Timestamp),
-            };
+            timeCard = new TimeCard();
         }
 
-        public void CalculateWorkingDuration()
+        public IBreakWorkCalculator BuildInitialData(WorkdayEntity workday)
         {
-            timeCard.WorkDuration = CalculateDuration(EntryStatus.In, EntryStatus.Out);
+            timeCard.Day = workday.Day;
+            timeCard.Attendances = workday.Attendances.OrderBy(x => x.Timestamp);
+
+            return this;
         }
         
-        public void CalculateBreakDuration()
+        public IWorkDurationCalculator CalculateBreakDuration()
         {
             timeCard.BreakDuration = CalculateDuration(EntryStatus.BreakStart, EntryStatus.BreakEnd);
+
+            return this;
+        }
+
+        public ITimeCardBuilder CalculateWorkingDuration()
+        {
+            timeCard.WorkDuration = CalculateDuration(EntryStatus.In, EntryStatus.Out);
+            timeCard.WorkDuration -= timeCard.BreakDuration;
+
+            return this;
         }
 
         private TimeSpan CalculateDuration(EntryStatus entryStart, EntryStatus entryEnd)
@@ -62,7 +81,11 @@
 
         public TimeCard GetTimeCard()
         {
-            return timeCard;
+            var result = timeCard;
+            
+            Reset();
+            
+            return result;
         }
     }
 }
