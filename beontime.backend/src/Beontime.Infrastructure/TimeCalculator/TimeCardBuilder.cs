@@ -1,17 +1,18 @@
-﻿namespace Beontime.Infrastructure.TimeCalculator
-{
-    using System;
-    using System.Linq;
-    using Application.Common.Extensions;
-    using Application.Common.Interfaces;
-    using Domain.Aggregates;
-    using Domain.Entities;
-    using Domain.Enums;
-    using TimeCardBuilderInterfaces;
+﻿using System;
+using System.Linq;
+using Beontime.Application.Common.Extensions;
+using Beontime.Application.Common.Interfaces;
+using Beontime.Domain.Aggregates;
+using Beontime.Domain.Entities;
+using Beontime.Domain.Enums;
+using Beontime.Infrastructure.TimeCalculator.TimeCardBuilderInterfaces;
 
-    public class TimeCardBuilder : 
+namespace Beontime.Infrastructure.TimeCalculator
+{
+    public class TimeCardBuilder :
+        ITimeCardBuilder,
         IInitialBuilder, IBreakWorkCalculator,
-        IWorkDurationCalculator, ITimeCardBuilder
+        IWorkDurationCalculator, IStatusResolver
     {
         private readonly IDateTimeService dateTimeService;
         private DateTime now;
@@ -47,10 +48,19 @@
             return this;
         }
 
-        public ITimeCardBuilder CalculateWorkingDuration()
+        public IStatusResolver CalculateWorkingDuration()
         {
             timeCard.WorkDuration = CalculateDuration(EntryStatus.In, EntryStatus.Out);
             timeCard.WorkDuration -= timeCard.BreakDuration;
+
+            return this;
+        }
+
+        public ITimeCardBuilder SetTimeCardStatus()
+        {
+            var handler = WorkdayStatusChain.GenerateStatus(timeCard, now);
+            var result = handler.Handle();
+            timeCard.Status = (TimeCardStatus) result!;
 
             return this;
         }

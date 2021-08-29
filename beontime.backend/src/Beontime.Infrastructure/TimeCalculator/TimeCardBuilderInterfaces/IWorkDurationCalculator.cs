@@ -2,6 +2,6 @@
 {
     public interface IWorkDurationCalculator
     {
-        ITimeCardBuilder CalculateWorkingDuration();
+        IStatusResolver CalculateWorkingDuration();
     }
 }
