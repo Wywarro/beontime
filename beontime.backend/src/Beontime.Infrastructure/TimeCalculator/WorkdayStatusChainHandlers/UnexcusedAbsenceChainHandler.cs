@@ -19,8 +19,9 @@ namespace Beontime.Infrastructure.TimeCalculator.WorkdayStatusChainHandlers
                 return new bool[]
                 {
                     !IsWorkdayToday,
-                    (Now - WorkdayStamp).TotalHours > hoursInDay + countAsAbsenceAt,
-                    Attendances.Count == 0
+                    (Now - TimeCardDay).TotalHours > hoursInDay + countAsAbsenceAt,
+                    WorkAttendances.Count == 0,
+                    BreakAttendances.Count == 0,
                 };
             }
         }

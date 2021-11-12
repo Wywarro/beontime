@@ -5,17 +5,19 @@ VisualStudioVersion = 16.6.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E82F4F93-5040-4F9A-A41D-72089845BCEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beontime.WebApi", "src\Beontime.WebApi\Beontime.WebApi.csproj", "{00413B42-FFE4-43C9-831A-88CEF3E392F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Beontime.WebApi", "src\Beontime.WebApi\Beontime.WebApi.csproj", "{00413B42-FFE4-43C9-831A-88CEF3E392F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beontime.Infrastructure", "src\Beontime.Infrastructure\Beontime.Infrastructure.csproj", "{FD512653-2328-45C8-A70A-708A82D71BAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Beontime.Infrastructure", "src\Beontime.Infrastructure\Beontime.Infrastructure.csproj", "{FD512653-2328-45C8-A70A-708A82D71BAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beontime.Application", "src\Beontime.Application\Beontime.Application.csproj", "{B9D1D95B-0BEB-4CDF-ACFC-2A97627A35CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Beontime.Application", "src\Beontime.Application\Beontime.Application.csproj", "{B9D1D95B-0BEB-4CDF-ACFC-2A97627A35CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beontime.Domain", "src\Beontime.Domain\Beontime.Domain.csproj", "{F4D156DA-1BBB-4265-9C6E-B153D89064E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Beontime.Domain", "src\Beontime.Domain\Beontime.Domain.csproj", "{F4D156DA-1BBB-4265-9C6E-B153D89064E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F68C4610-F736-4D10-8819-2EF4D43EBF2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beontime.Tests", "tests\Beontime.Tests\Beontime.Tests.csproj", "{8746FB9F-86C0-4FEF-8736-2BF2D8229511}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Beontime.Tests", "tests\Beontime.Tests\Beontime.Tests.csproj", "{8746FB9F-86C0-4FEF-8736-2BF2D8229511}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beontime.IntegrationTests", "tests\Beontime.IntegrationTests\Beontime.IntegrationTests.csproj", "{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,9 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{00413B42-FFE4-43C9-831A-88CEF3E392F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -90,6 +89,21 @@ Global
 		{8746FB9F-86C0-4FEF-8736-2BF2D8229511}.Release|x64.Build.0 = Release|Any CPU
 		{8746FB9F-86C0-4FEF-8736-2BF2D8229511}.Release|x86.ActiveCfg = Release|Any CPU
 		{8746FB9F-86C0-4FEF-8736-2BF2D8229511}.Release|x86.Build.0 = Release|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Debug|x64.Build.0 = Debug|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Debug|x86.Build.0 = Debug|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Release|x64.ActiveCfg = Release|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Release|x64.Build.0 = Release|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Release|x86.ActiveCfg = Release|Any CPU
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{00413B42-FFE4-43C9-831A-88CEF3E392F4} = {E82F4F93-5040-4F9A-A41D-72089845BCEE}
@@ -97,5 +111,9 @@ Global
 		{B9D1D95B-0BEB-4CDF-ACFC-2A97627A35CA} = {E82F4F93-5040-4F9A-A41D-72089845BCEE}
 		{F4D156DA-1BBB-4265-9C6E-B153D89064E7} = {E82F4F93-5040-4F9A-A41D-72089845BCEE}
 		{8746FB9F-86C0-4FEF-8736-2BF2D8229511} = {F68C4610-F736-4D10-8819-2EF4D43EBF2B}
+		{6CD5F02C-22F8-420B-B95F-71C4FA1A0870} = {F68C4610-F736-4D10-8819-2EF4D43EBF2B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7BF6BBC3-A890-4C9D-90F8-25B202BD1F6A}
 	EndGlobalSection
 EndGlobal

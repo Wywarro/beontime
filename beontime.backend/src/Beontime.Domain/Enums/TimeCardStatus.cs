@@ -1,28 +1,56 @@
-﻿namespace Beontime.Domain.Enums
+﻿using System;
+
+namespace Beontime.Domain.Enums
 {
-    public enum TimeCardStatus
+    public class TimeCardStatus
     {
-        InvalidStatus = -1,
+        protected int Value { get; }
 
-        Present = 0,
-        ReadyToCalc = 1,
+        static TimeCardStatus()
+        {
+            InvalidStatus = new TimeCardStatus(-1);
+            Present = new TimeCardStatus(0);
+            NormalDay = new TimeCardStatus(2);
+            Overtime = new TimeCardStatus(3);
+            Undertime = new TimeCardStatus(4);
+            NotAtWorkYet = new TimeCardStatus(7);
+            Break = new TimeCardStatus(8);
+            InvalidLogs = new TimeCardStatus(9);
+            UnexcusedAbsence = new TimeCardStatus(10);
+        }
 
-        NormalDay = 2,
-        Overtime = 3,
-        Undertime = 4,
-        HomeOffice = 5,
+        protected TimeCardStatus(int value)
+        {
+            Value = value;
+        }
 
-        VacationLeaveRequested = 611,
-        VacationLeaveApproved = 612,
-        PaidLeave = 62,
-        ParentalLeave = 64,
-        BusinessTripLeave = 65,
-        OvertimeLeave = 67,
-        SicknessLeave = 68,
+        public static TimeCardStatus InvalidStatus { get; }
+        public static TimeCardStatus Present { get; }
+        public static TimeCardStatus NormalDay { get; }
+        public static TimeCardStatus Overtime { get; }
+        public static TimeCardStatus Undertime { get; }
+        public static TimeCardStatus NotAtWorkYet { get; }
+        public static TimeCardStatus Break { get; }
+        public static TimeCardStatus InvalidLogs { get; }
+        public static TimeCardStatus UnexcusedAbsence { get; }
 
-        NotAtWorkYet = 7,
-        Break = 8,
-        InvalidLogs = 9,
-        UnexcusedAbsence = 10,
+        public override string ToString()
+        {
+            var timeCardStatus = Value switch
+            {
+                -1 => nameof(InvalidStatus),
+                0 => nameof(Present),
+                2 => nameof(NormalDay),
+                3 => nameof(Overtime),
+                4 => nameof(Undertime),
+                7 => nameof(NotAtWorkYet),
+                8 => nameof(Break),
+                9 => nameof(InvalidLogs),
+                10 => nameof(UnexcusedAbsence),
+                _ => throw new ArgumentOutOfRangeException(),
+            };
+
+            return timeCardStatus;
+        }
     }
 }

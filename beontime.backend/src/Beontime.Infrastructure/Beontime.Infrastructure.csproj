@@ -6,10 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Beontime.Application\Beontime.Application.csproj" />
+	<InternalsVisibleTo Include="Beontime.Tests" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Beontime.Application\Beontime.Application.csproj" />
+    <ProjectReference Include="..\Beontime.Domain\Beontime.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Marten" Version="4.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
   </ItemGroup>
 

@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Serilog;
+using System;
+using System.Threading.Tasks;
+
 namespace Beontime.WebApi
 {
-    using System;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Hosting;
-    using Serilog;
-
     public class Program
     {
         public static async Task Main(string[] args)
@@ -30,7 +30,7 @@ namespace Beontime.WebApi
             }
             catch (Exception ex)
             {
-                Log.Fatal(ex, "Content Wizard failed to start correctly");
+                Log.Fatal(ex, "Application failed to start correctly!");
             }
             finally
             {
@@ -41,13 +41,17 @@ namespace Beontime.WebApi
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             var listenUrls = string.Empty;
-            var portEnv = Environment.GetEnvironmentVariable("PORT");
+            var portEnv = Environment.GetEnvironmentVariable("PORT") ?? "5048";
             if (!string.IsNullOrEmpty(portEnv) && !portEnv.Equals("80"))
             {
                 listenUrls += $"http://*:{portEnv}";
             }
             
             return Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(options =>
+                {
+                    options.AddEnvironmentVariables("BEONTIME_");
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

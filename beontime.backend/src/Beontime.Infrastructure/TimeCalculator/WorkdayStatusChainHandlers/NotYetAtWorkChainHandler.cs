@@ -1,6 +1,7 @@
 ﻿using Beontime.Domain.Aggregates;
 using Beontime.Domain.Enums;
 using System;
+using System.Linq;
 
 namespace Beontime.Infrastructure.TimeCalculator.WorkdayStatusChainHandlers
 {
@@ -18,10 +19,21 @@ namespace Beontime.Infrastructure.TimeCalculator.WorkdayStatusChainHandlers
             {
                 return new bool[]
                 {
-                    (Now - WorkdayStamp).TotalHours < hoursInDay + countAsAbsenceAt,
-                    Attendances.Count == 0
+                    IsNotAtWorkYet(),
+                    WorkAttendances.Count > 0
                 };
             }
+        }
+
+        private bool IsNotAtWorkYet()
+        {
+            var firstWorkStamp = WorkAttendances.FirstOrDefault();
+            if (firstWorkStamp is null)
+            {
+                return false;
+            }
+
+            return (Now - firstWorkStamp.Timestamp).TotalHours < 0;
         }
     }
 }

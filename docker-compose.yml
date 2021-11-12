@@ -1,68 +1,67 @@
 version: "3.7"
 
 volumes:
-  mongodb_data_container:
+  postgresql: {}
+  postgresql-backup: {}
 
 services:
-  mongo:
-    image: mongo:latest
-    container_name: beontime-mongo.dev
+  postgresql:
+    image: postgres:14
+    container_name: beontime-postgresql.dev
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=rootpassword
-      - MONGO_INITDB_DATABASE=beontime_dev
-    command: mongod --port 27018
+      POSTGRES_DB: "${DEFAULT_DATABASE_NAME:-beontime}"
+      POSTGRES_USER: "${DEFAULT_USERNAME:-admin}"
+      POSTGRES_PASSWORD: "${DEFAULT_PASSWORD:-Pr0st0ZM0stu}"
+      PGDATA: /var/lib/postgresql/data
     ports:
-      - 27018:27018
+      - 5433:5432
     volumes:
-      - mongodb_data_container:/data/db
-      - ./docker/development/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    restart: always
-
-  mongo_express:
-    image: mongo-express
-    container_name: beontime-mongo_express.dev
-    ports:
-      - "8081:8081"
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpassword
-      - ME_CONFIG_MONGODB_SERVER=mongo
-      - ME_CONFIG_MONGODB_PORT=27018
-    restart: always
-    depends_on:
-      - mongo
+      - postgresql:/var/lib/postgresql/data
+      - postgresql-backup:/backups
+    restart: unless-stopped
 
   api:
     build:
       context: .
       dockerfile: docker/development/aspnet/Dockerfile
+      target: build
+    image: beontime-api:local
     container_name: beontime-api.dev
+    working_dir: /src
+    entrypoint: dotnet watch run --no-launch-profile --project
+      ./Beontime.WebApi/Beontime.WebApi.csproj
     ports:
-      - "5000:5000"
+      - "${PORT-5000}:${PORT-5000}"
     volumes:
-      - ./beontime.backend:/app
-      - /app/BEonTime.Web/Properties
-    env_file: ./.docker-env-dev
+      - ./beontime.backend/src:/src
+    environment:
+      - PORT=${PORT-5000}
+      - BEONTIME_CONNECTIONSTRINGS__POSTGRESQL=Server=postgresql;Port=5432;Database=beontime;User Id=${DEFAULT_USERNAME:-admin};Password=${DEFAULT_PASSWORD:-Pr0st0ZM0stu};
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:$$PORT/health || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: always
     depends_on:
-      - mongo
+      - postgresql
 
-  vue:
-    build:
-      context: .
-      dockerfile: docker/development/vue/Dockerfile
-    container_name: beontime-ui.dev
-    ports:
-      - "8080:8080"
-    volumes:
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      - ./beontime.frontend:/app/src:cached
-      - /app/src/node_modules
-    stdin_open: true
-    tty: true
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - CHOKIDAR_INTERVAL=1000
-    depends_on:
-      - mongo
+  # vue:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/development/vue/Dockerfile
+  #   container_name: beontime-ui.dev
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - ~/.composer-docker/cache:/root/.composer/cache:delegated
+  #     - ./beontime.frontend:/app/src:cached
+  #     - /app/src/node_modules
+  #   stdin_open: true
+  #   tty: true
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true
+  #     - CHOKIDAR_INTERVAL=1000
+  #   depends_on:
+  #     - postgresql

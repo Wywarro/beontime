@@ -1,6 +1,5 @@
 ﻿using Beontime.Domain.Aggregates;
 using Beontime.Domain.Enums;
-using Beontime.Infrastructure.TimeCalculator.AttendanceValidators;
 using System;
 
 namespace Beontime.Infrastructure.TimeCalculator.WorkdayStatusChainHandlers
@@ -19,9 +18,10 @@ namespace Beontime.Infrastructure.TimeCalculator.WorkdayStatusChainHandlers
             {
                 return new bool[]
                 {
-                    IsWorkdayToday ||
-                    Attendances.Count > 0 ||
-                    Attendances.AreAttendancesInvalid()
+                    IsWorkdayToday &&
+                    WorkAttendances.Count > 0 &&
+                    WorkAttendances.AreAttendancesInvalid() &&
+                    BreakAttendances.AreAttendancesInvalid()
                 };
             }
         }

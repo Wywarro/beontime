@@ -1,9 +1,10 @@
 ﻿namespace Beontime.Infrastructure.TimeCalculator.TimeCardBuilderInterfaces
 {
-    using Domain.Entities;
+    using Beontime.Domain.Aggregates;
+    using Beontime.Domain.Entities;
 
     public interface IInitialBuilder
     {
-        IBreakWorkCalculator BuildInitialData(WorkdayEntity workday);
+        IBreakWorkCalculator BuildInitialData(TimeCard timecard);
     }
 }

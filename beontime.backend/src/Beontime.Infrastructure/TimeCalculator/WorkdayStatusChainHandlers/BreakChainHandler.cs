@@ -18,10 +18,11 @@ namespace Beontime.Infrastructure.TimeCalculator.WorkdayStatusChainHandlers
             {
                 return new bool[]
                 {
-                    Attendances.Count > 0,
+                    WorkAttendances.Count > 0,
+                    BreakAttendances.Count % 2 == 1,
                     IsWorkdayToday,
-                    Ins - Outs == 1,
-                    BreakStarts - BreakEnds == 1
+                    WorkAttendances.InCount - WorkAttendances.OutCount == 1,
+                    BreakAttendances.BreakStartCount - BreakAttendances.BreakEndCount == 1,
                 };
             }
         }

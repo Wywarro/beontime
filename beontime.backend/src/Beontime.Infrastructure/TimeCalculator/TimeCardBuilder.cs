@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Beontime.Application.Common.Extensions;
 using Beontime.Application.Common.Interfaces;
@@ -33,27 +34,60 @@ namespace Beontime.Infrastructure.TimeCalculator
             timeCard = new TimeCard();
         }
 
-        public IBreakWorkCalculator BuildInitialData(WorkdayEntity workday)
+        public IBreakWorkCalculator BuildInitialData(TimeCard timeCard)
         {
-            timeCard.Day = workday.Day;
-            timeCard.Attendances = workday.Attendances.OrderBy(x => x.Timestamp);
+            this.timeCard = timeCard;
 
             return this;
         }
         
         public IWorkDurationCalculator CalculateBreakDuration()
         {
-            timeCard.BreakDuration = CalculateDuration(EntryStatus.BreakStart, EntryStatus.BreakEnd);
+            timeCard.BreakDuration = CalculateDuration(
+                timeCard.BreakAttendances,
+                EntryStatus.BreakStart,
+                EntryStatus.BreakEnd);
 
             return this;
         }
 
         public IStatusResolver CalculateWorkingDuration()
         {
-            timeCard.WorkDuration = CalculateDuration(EntryStatus.In, EntryStatus.Out);
+            timeCard.WorkDuration = CalculateDuration(
+                timeCard.WorkAttendances,
+                EntryStatus.In,
+                EntryStatus.Out);
             timeCard.WorkDuration -= timeCard.BreakDuration;
 
             return this;
+        }
+
+        private TimeSpan CalculateDuration(
+            IEnumerable<Attendance> attendances,
+            EntryStatus entryStart,
+            EntryStatus entryEnd)
+        {
+            var attendanceNow = new Lazy<Attendance>(() => new Attendance
+            {
+                Timestamp = now,
+                Status = entryEnd,
+            });
+
+            var duration = attendances
+                .Where(att => att.Status == entryStart)
+                .Select(att => new
+                {
+                    Start = att,
+                    End = attendances
+                        .SkipWhile(x => x != att)
+                        .FirstOrDefault(endAtt => endAtt.Status == entryEnd) ?? attendanceNow.Value,
+                })
+                .Select(startEndAttendance =>
+                    startEndAttendance.End.Timestamp - startEndAttendance.Start.Timestamp)
+                .Where(workDuration => workDuration.Ticks >= 0)
+                .Aggregate(TimeSpan.Zero, (current, workDuration) => current + workDuration);
+
+            return duration.RoundToNearestMinutes(NearestMinutes);
         }
 
         public ITimeCardBuilder SetTimeCardStatus()
@@ -63,30 +97,6 @@ namespace Beontime.Infrastructure.TimeCalculator
             timeCard.Status = (TimeCardStatus) result!;
 
             return this;
-        }
-
-        private TimeSpan CalculateDuration(EntryStatus entryStart, EntryStatus entryEnd)
-        {
-            var attendanceNow = new Lazy<AttendanceEntity>(() => new AttendanceEntity
-            {
-                Timestamp = now,
-                Status = entryEnd,
-            });
-
-            var duration = timeCard.Attendances
-                .Where(att => att.Status == entryStart)
-                .Select(att => new
-                {
-                    Start = att,
-                    End = timeCard.Attendances
-                        .SkipWhile(x => x != att)
-                        .FirstOrDefault(endAtt => endAtt.Status == entryEnd) ?? attendanceNow.Value,
-                })
-                .Select(startEndAttendance => startEndAttendance.End.Timestamp - startEndAttendance.Start.Timestamp)
-                .Where(workDuration => workDuration.Ticks >= 0)
-                .Aggregate(TimeSpan.Zero, (current, workDuration) => current + workDuration);
-
-            return duration.RoundToNearestMinutes(NearestMinutes);
         }
 
         public TimeCard GetTimeCard()
