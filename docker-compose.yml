@@ -37,6 +37,8 @@ services:
     environment:
       - PORT=${PORT-5000}
       - BEONTIME_CONNECTIONSTRINGS__POSTGRESQL=Server=postgresql;Port=5432;Database=beontime;User Id=${DEFAULT_USERNAME:-admin};Password=${DEFAULT_PASSWORD:-Pr0st0ZM0stu};
+      - BEONTIME_EMAILSENDER__USERNAME=${EMAILBOX_USERNAME:-anonymous@anywhere.com}
+      - BEONTIME_EMAILSENDER__PASSWORD=${EMAILBOX_PASSWORD:-default}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:$$PORT/health || exit 1"]
       interval: 5s
