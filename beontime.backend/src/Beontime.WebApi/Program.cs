@@ -10,13 +10,10 @@ namespace Beontime.WebApi
     public class Program
     {
         public static async Task Main(string[] args)
-        {
-            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            
+        {           
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
-                .AddJsonFile($"appsettings.{env}.json", optional: true)
-                .AddEnvironmentVariables()
+                .AddEnvironmentVariables("BEONTIME_")
                 .Build();
             
             Log.Logger = new LoggerConfiguration()

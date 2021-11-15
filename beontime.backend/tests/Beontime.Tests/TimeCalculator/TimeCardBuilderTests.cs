@@ -20,7 +20,7 @@ namespace Beontime.Tests.TimeCalculator
         {
             mockDateTimeService = Mock.Of<IDateTimeService>();
             Mock.Get(mockDateTimeService)
-                .Setup(dat => dat.Now)
+                .Setup(dat => dat.GetDateTimeNow())
                 .Returns(now);
         }
 

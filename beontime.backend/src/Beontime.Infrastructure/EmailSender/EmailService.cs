@@ -1,4 +1,5 @@
-﻿using MailKit.Net.Smtp;
+﻿using Beontime.Application.Common.Interfaces;
+using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -8,20 +9,20 @@ using System.Threading.Tasks;
 namespace Beontime.Infrastructure.EmailSender
 {
 
-    public sealed class EmailService
+    public sealed class EmailService : IEmailService
     {
-        private readonly EmailSenderMetadata senderMetadata;
+        private readonly EmailConfigSettings emailConfig;
 
-        public EmailService(IOptions<EmailSenderMetadata> emailSenderMetadata)
+        public EmailService(IOptions<EmailConfigSettings> emailConfig)
         {
-            senderMetadata = emailSenderMetadata.Value;
+            this.emailConfig = emailConfig.Value;
         }
 
         public async Task SendEmailAsync(string receiver, string subject, string content)
         {
             var message = new EmailMessage
             {
-                Sender = senderMetadata.Username,
+                Sender = emailConfig.Username,
                 Reciever = receiver,
                 Subject = subject,
                 Content = content
@@ -29,9 +30,9 @@ namespace Beontime.Infrastructure.EmailSender
             var email = CreateMimeMessageFromEmailMessage(message);
 
             using var smtp = new SmtpClient();
-            await smtp.ConnectAsync(senderMetadata.SmtpServer,
-                senderMetadata.Port, SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync(senderMetadata.Username, senderMetadata.Password);
+            await smtp.ConnectAsync(emailConfig.SmtpServer,
+                emailConfig.Port, SecureSocketOptions.StartTls);
+            await smtp.AuthenticateAsync(emailConfig.Username, emailConfig.Password);
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
         }

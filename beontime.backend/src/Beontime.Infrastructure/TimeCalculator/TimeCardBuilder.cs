@@ -30,7 +30,7 @@ namespace Beontime.Infrastructure.TimeCalculator
 
         private void Reset()
         {
-            now = dateTimeService.Now;
+            now = dateTimeService.GetDateTimeNow();
             timeCard = new TimeCard();
         }
 

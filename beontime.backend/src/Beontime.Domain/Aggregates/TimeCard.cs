@@ -73,5 +73,53 @@ namespace Beontime.Domain.Aggregates
             BreakAttendances = new BreakAttendanceCollection(BreakAttendances
                 .Where(x => x.Id != attDeleted.Id));
         }
+
+        public void Apply(TimeoffApproved timeoffApproved)
+        {
+            Day = timeoffApproved.Timestamp;
+            Status = WorkdayStatus.VacationLeaveApproved;
+        }
+
+        public void Apply(TimeoffRequested @event)
+        {
+            Day = @event.Timestamp;
+            Status = WorkdayStatus.VacationLeaveRequested;
+        }
+
+        public void Apply(WorkingFromHome @event)
+        {
+            Day = @event.Timestamp;
+            Status = WorkdayStatus.HomeOffice;
+        }
+
+        public void Apply(FeelingSick @event)
+        {
+            Day = @event.Timestamp;
+            Status = WorkdayStatus.SicknessLeave;
+        }
+
+        public void Apply(PaidLeaveDay @event)
+        {
+            Day = @event.Timestamp;
+            Status = WorkdayStatus.SicknessLeave;
+        }
+
+        public void Apply(ParentalLeaveDay @event)
+        {
+            Day = @event.Timestamp;
+            Status = WorkdayStatus.ParentalLeave;
+        }
+
+        public void Apply(OvertimeLeaveDay @event)
+        {
+            Day = @event.Timestamp;
+            Status = WorkdayStatus.OvertimeLeave;
+        }
+
+        public void Apply(BusinessTripLeaveDay @event)
+        {
+            Day = @event.Timestamp;
+            Status = WorkdayStatus.BusinessTripLeave;
+        }
     }
 }

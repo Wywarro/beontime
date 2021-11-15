@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Beontime.WebApi.Controllers
 {
-    [Route("api/v1/attendances")]
+    [Route("api/v1/accounts")]
     [Authorize]
-    public class AttendanceController : ApiControllerBase
-    { }
+    public class AccountsController : ApiControllerBase
+    {
+
+    }
 }

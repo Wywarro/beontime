@@ -1,5 +1,6 @@
 using Beontime.Application;
 using Beontime.Infrastructure;
+using Beontime.WebApi.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -65,10 +66,13 @@ namespace Beontime.WebApi
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Beontime.WebApi v1"));
             }
 
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
+
             app.UseSerilogRequestLogging();
 
             app.UseRouting();
 
+            app.UseAuthorization();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

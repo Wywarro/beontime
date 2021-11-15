@@ -1,4 +1,6 @@
 ﻿using Beontime.Application.Common.Interfaces;
+using Beontime.Infrastructure.EmailSender;
+using Beontime.Infrastructure.JwtService;
 using Beontime.Infrastructure.Services;
 using Beontime.Infrastructure.TimeCards;
 using Marten;
@@ -15,6 +17,14 @@ namespace Beontime.Infrastructure
             IConfiguration configuration)
         {
             services.AddTransient<IDateTimeService, DateTimeService>();
+
+            services.AddOptions<JwtConfigSettings>()
+                .Bind(configuration.GetSection(JwtConfigSettings.SectionName));
+            services.AddSingleton<IJwtFactory, JwtFactory>();
+
+            services.AddOptions<EmailConfigSettings>()
+                .Bind(configuration.GetSection(EmailConfigSettings.SectionName));
+            services.AddSingleton<IEmailService, EmailService>();
 
             services.AddTransient<ITimeCardsRepository, TimeCardsRepository>();
 

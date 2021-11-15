@@ -5,6 +5,6 @@
 
     public class DateTimeService : IDateTimeService
     {
-        public DateTime Now => DateTime.Now;
+        public DateTime GetDateTimeNow() => DateTime.Now;
     }
 }
