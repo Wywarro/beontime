@@ -1,6 +1,8 @@
 using Beontime.Application;
+using Beontime.Application.Common.Interfaces;
 using Beontime.Infrastructure;
 using Beontime.WebApi.Middlewares;
+using Beontime.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +31,10 @@ namespace Beontime.WebApi
         {
             services.AddInfrastructure(Configuration);
             services.AddApplication();
+
+            services.AddSingleton<ICurrentUserService, CurrentUserService>();
+
+            services.AddHttpContextAccessor();
 
             services.AddControllers()
                 .AddNewtonsoftJson(options =>

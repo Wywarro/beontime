@@ -1,12 +1,11 @@
 ﻿using Beontime.Application.Common.Interfaces;
 using Beontime.Infrastructure.EmailSender;
 using Beontime.Infrastructure.JwtService;
+using Beontime.Infrastructure.MartenConfig;
 using Beontime.Infrastructure.Services;
 using Beontime.Infrastructure.TimeCards;
-using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Weasel.Postgresql;
 
 namespace Beontime.Infrastructure
 {
@@ -16,8 +15,6 @@ namespace Beontime.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            services.AddTransient<IDateTimeService, DateTimeService>();
-
             services.AddOptions<JwtConfigSettings>()
                 .Bind(configuration.GetSection(JwtConfigSettings.SectionName));
             services.AddSingleton<IJwtFactory, JwtFactory>();
@@ -28,12 +25,10 @@ namespace Beontime.Infrastructure
 
             services.AddTransient<ITimeCardsRepository, TimeCardsRepository>();
 
-            var postgreSqlConnectionString = configuration.GetConnectionString("POSTGRESQL");
-            services.AddMarten(options =>
-            {
-                options.AutoCreateSchemaObjects = AutoCreate.All;
-                options.Connection(postgreSqlConnectionString);
-            }).InitializeStore();
+            services.AddTransient<IPasswordGenerator, PasswordGenerator>();
+            services.AddTransient<IDateTimeService, DateTimeService>();
+
+            services.AddBeontimeMartenDb(configuration);
 
             return services;
         }

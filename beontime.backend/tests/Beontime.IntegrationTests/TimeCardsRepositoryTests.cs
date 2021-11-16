@@ -63,11 +63,7 @@ namespace Beontime.IntegrationTests
             TheSession.SaveChanges();
 
             var repo = new TimeCardsRepository(TheStore);
-            var timeCards = new List<TimeCard>();
-            await foreach (var timeCard in repo.GetAllTimeCards(userId, default))
-            {
-                timeCards.Add(timeCard);
-            }
+            var timeCards = await repo.GetAllTimeCards(userId, default);
 
             timeCards.Should().HaveCount(1);
         }

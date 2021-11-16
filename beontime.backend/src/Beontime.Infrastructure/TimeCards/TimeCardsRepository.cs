@@ -21,9 +21,9 @@ namespace Beontime.Infrastructure.TimeCards
             this.store = store;
         }
 
-        public async IAsyncEnumerable<TimeCard> GetAllTimeCards(
+        public async Task<IEnumerable<TimeCard>> GetAllTimeCards(
             Guid userId,
-            [EnumeratorCancellation] CancellationToken token)
+            CancellationToken token)
         {
             using var session = store.OpenSession();
 
@@ -32,6 +32,7 @@ namespace Beontime.Infrastructure.TimeCards
                 .Select(t => t.Id)
                 .ToListAsync(token);
 
+            var timeCards = new List<TimeCard>();
             foreach (var timeCardId in timeCardIds)
             {
                 token.ThrowIfCancellationRequested();
@@ -39,9 +40,11 @@ namespace Beontime.Infrastructure.TimeCards
                     .AggregateStreamAsync<TimeCard>(timeCardId, token: token);
                 if (timeCard is not null)
                 {
-                    yield return timeCard;
+                    timeCards.Add(timeCard);
                 }
             }
+
+            return timeCards;
         }
 
         public async Task<Guid> CreateTimeCard(Guid userId, params IEvent[] events)
